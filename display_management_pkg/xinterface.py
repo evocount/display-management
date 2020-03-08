@@ -44,7 +44,7 @@ def set_screen_props(screen_size_id, rotation=randr.Rotate_0, refresh_rate=0):
     root.xrandr_set_screen_config(screen_size_id, rotation, config_timestamp)
 
 def set_screen_size(width, height):
-    default_display.screen().root.xrandr_set_screen_size(widht, height)
+    default_display.screen().root.xrandr_set_screen_size(width, height)
 
 def get_screen_info():
     return default_display.screen().root.xrandr_get_screen_info()
