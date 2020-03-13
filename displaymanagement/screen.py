@@ -7,13 +7,13 @@ from .utils import (
     format_mode,
     format_size,
 )
-from .xentity import XEntity
+from .entity import Entity
 
 
-class Screen(XEntity):
+class Screen(Entity):
     """
     Represents an X screen on a display.
-    Inherits from XEntity.
+    Inherits from Entity.
     .......
     Methods
     -------
@@ -70,6 +70,7 @@ class Screen(XEntity):
 
     def set_size(self, size_id):
         """
+        *BROKEN*
         Sets the size of the screen according to a size id from the list of possible sizes.
         ..........
         Parameters
@@ -87,6 +88,7 @@ class Screen(XEntity):
 
     def set_refresh_rate(self, rate=0):
         """
+        *BROKEN*
         Sets the refresh rate of the screen.
         ..........
         Parameters

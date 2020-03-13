@@ -1,12 +1,13 @@
 from Xlib.ext import randr
 from .utils import get_modes_from_ids, format_mode
-from .xentity import XEntity
 from .rotation import Rotation
+from .entity import Entity
 
 
-class Output(XEntity):
+class Output(Entity):
     """
     Represents an output port (real or virtual) defined for an X screen
+    Inherits from Entity
     .......
     Methods
     -------

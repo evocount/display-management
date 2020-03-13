@@ -2,9 +2,9 @@ from abc import abstractmethod
 import json
 
 
-class XEntity:
+class Entity:
     """
-    Represents and Entity in the X domain
+    Represents a display management entity
     .......
     Methods
     -------

@@ -1,13 +1,13 @@
 from Xlib import display
 from Xlib.ext import randr
 from .screen import Screen
-from .xentity import XEntity
+from .entity import Entity
 
 
-class Display(XEntity):
+class Display(Entity):
     """
     Represents an X display which corresponds to an X server.
-    Inherits from XEntity
+    Inherits from Entity
     .......
     Methods
     -------
