@@ -22,7 +22,7 @@ for managing the X display server without exposing all the thorough details of t
 
 ## Terminology
 
-#### The world of X follows an ambiguous and rather confusing set of terminologies, here you will find a list of some that are relevant for the library.
+_*The world of X follows an ambiguous and rather confusing set of terminologies, here you will find a list of some that are relevant for the library.*_
 
 1. Display  
    The term displays usually refers to an underlying X server instance. It is commonly referenced by the environment variable `DISPLAY`.
@@ -87,10 +87,10 @@ for managing the X display server without exposing all the thorough details of t
 - Xorg Config  
    The [Xorg configuration](https://www.x.org/releases/current/doc/man/man5/xorg.conf.5.xhtml) defines the X server configuration in 4 main Sections
 
-  1.  _Server Layout:_ This is the root level section, it defines the general layout of the X server, the IO devices and configured Screens
-  2.  _Device:_ Defines a video device, e.g., a video card or a virtual display card that can be used
-  3.  _Monitor:_ Generally, corresponds to a physical output monitor
-  4.  _Screen:_ Corresponds to an X Screen. This section ties together outputs(graphics device defined by a Device section and a monitor defined by  
+  1. _Server Layout:_ This is the root level section, it defines the general layout of the X server, the IO devices and configured Screens
+  2. _Device:_ Defines a video device, e.g., a video card or a virtual display card that can be used
+  3. _Monitor:_ Generally, corresponds to a physical output monitor
+  4. _Screen:_ Corresponds to an X Screen. This section ties together outputs(graphics device defined by a Device section and a monitor defined by  
       the monitor Section).
 
 - XRandr  
