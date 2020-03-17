@@ -1,9 +1,14 @@
 from displaymanagement.display import Display
 
-display = Display(":1")
-display.init_display()
-display.load_screen()
-display.load_all_screens()
+DISPLAY_ID = ":1"
+
+# Load display
+display = Display(DISPLAY_ID)
+
+# Get display info
 info = display.get_info()
+
+# Alternatively, get it as json
 json_info = display.toJSON()
+
 print(json_info)

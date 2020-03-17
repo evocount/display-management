@@ -2,6 +2,7 @@ from Xlib.ext import randr
 from .utils import get_modes_from_ids, format_mode
 from .rotation import Rotation
 from .entity import Entity
+from .model_descriptors.output_descriptor import OutputDescriptor
 
 
 class Output(Entity):
@@ -162,25 +163,18 @@ class Output(Entity):
         ........
         Returns
         -------
-        dict
-            Format:
-            {
-                "id": int
-                "current_mode_id": int,
-                "available_mode_ids": [int],
-                "is_connected": bool
-            }
+        OutputDescriptor
+            The descriptor of the output
         """
-        output_info = {
-            "id": self._id,
-            "current_mode_id": self.__active_mode_id
-            if self.__active_mode_id is not None
-            else None,
-            "available_mode_ids": list(self.__modes.keys()),
-            "is_connected": self.__is_connected,
-        }
-
-        return output_info
+        current_mode_id = (
+            self.__active_mode_id if self.__active_mode_id is not None else None
+        )
+        return OutputDescriptor(
+            id=self._id,
+            current_mode_id=current_mode_id,
+            available_mode_ids=list(self.__modes.keys()),
+            is_connected=self.__is_connected,
+        )
 
     @staticmethod
     def load_from_identifier(

@@ -1,36 +1,18 @@
 from string import Template
+from .model_descriptors.screen_size import ScreenSize
+from .model_descriptors.mode_info import ModeInfo
 
 
-def get_mode_dict_from_list(modes_resouce):
+def get_mode_dict_from_list(modes_resouces):
     """
     Takes in a list of modes and returns a dictionary of them indexed by their IDs
     ..........
     Parameters
     ----------
-    modes_resouce : list
+    modes_resouces : list
         a list of modes
     """
-    modes_dict = {}
-    for mode in modes_resouce:
-        modes_dict[mode.id] = mode
-
-    return modes_dict
-
-
-def get_screen_sizes_from_list(screen_sizes):
-    """
-    Takes in a list of screen sizes and returns a dictionary of them indexed by their IDs
-    ..........
-    Parameters
-    ----------
-    screen_sizes : list
-        a list of screen sizes
-    """
-    sizes_dict = {}
-    for idx, size in enumerate(screen_sizes):
-        sizes_dict[idx] = size
-
-    return sizes_dict
+    return {mode.id: mode for mode in modes_resouces}
 
 
 def get_modes_from_ids(mode_ids, modes):
@@ -45,11 +27,24 @@ def get_modes_from_ids(mode_ids, modes):
     modes : dict
         a dictionary of modes indexed by their ids
     """
-    output_modes = {}
-    for mode_id in mode_ids:
-        output_modes[mode_id] = modes[mode_id]
+    return {mode_id: modes[mode_id] for mode_id in mode_ids}
 
-    return output_modes
+
+####################
+# External Functions#
+####################
+
+
+def get_screen_sizes_from_list(screen_sizes):
+    """
+    Takes in a list of screen sizes and returns a dictionary of them indexed by their IDs
+    ..........
+    Parameters
+    ----------
+    screen_sizes : list
+        a list of screen sizes
+    """
+    return {idx: format_size(size) for idx, size in enumerate(screen_sizes)}
 
 
 def format_mode(mode_id, mode):
@@ -62,19 +57,23 @@ def format_mode(mode_id, mode):
         the id of the mode
     mode : mode_object
         the mode object
-    """
-    formatted_mode = {}
-    mode_data = mode._data
-    dot_clock = mode_data["dot_clock"]
-    h_total = mode_data["h_total"]
-    v_total = mode_data["v_total"]
-    refresh_rate = dot_clock / (h_total * v_total)
-    formatted_mode["id"] = mode_data["id"]
-    formatted_mode["width"] = mode_data["width"]
-    formatted_mode["height"] = mode_data["height"]
-    formatted_mode["refresh_rate"] = refresh_rate
 
-    return formatted_mode
+    Returns
+    -------
+    ModeInfo
+        A descriptor of the mode info
+    """
+    dot_clock = mode._data["dot_clock"]
+    h_total = mode._data["h_total"]
+    v_total = mode._data["v_total"]
+    refresh_rate = dot_clock / (h_total * v_total)
+
+    return ModeInfo(
+        id=mode._data["id"],
+        width=mode._data["width"],
+        height=mode._data["height"],
+        refresh_rate=refresh_rate,
+    )
 
 
 def format_size(size):
@@ -85,10 +84,12 @@ def format_size(size):
     ----------
     size : Size
         the size object
-    """
-    formatted_size = {}
-    size_data = size._data
-    formatted_size["width"] = size_data["width_in_pixels"]
-    formatted_size["height"] = size_data["height_in_pixels"]
 
-    return formatted_size
+    Returns
+    -------
+    ScreenSize
+        A descriptor of the screen size
+    """
+    return ScreenSize(
+        width=size._data["width_in_pixels"], height=size._data["height_in_pixels"]
+    )

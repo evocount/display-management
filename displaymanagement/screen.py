@@ -8,6 +8,7 @@ from .utils import (
     format_size,
 )
 from .entity import Entity
+from .model_descriptors.screen_descriptor import ScreenDescriptor
 
 
 class Screen(Entity):
@@ -116,30 +117,20 @@ class Screen(Entity):
         Returns
         -------
         dict
-            Format:
-            {
-                "id": int
-                "sizes": [{width, height}],
-                "size": {width, height},
-                "outputs": [output_info],
-                "modes": [{id, width, height, refresh_rate}]
-            }
+        ScreenDescriptor
+            The descriptor of the screen
         """
         sizes = self.get_sizes()
         screen_size = sizes[self.__screen_size_id] if len(sizes) > 0 else None
-        screen_info = {
-            "id": self._id,
-            "sizes": [format_size(size) for size in sizes.values()],
-            "size": format_size(screen_size) if screen_size is not None else None,
-            "outputs": [
-                output.get_info() for output_id, output in self.__outputs.items()
-            ],
-            "modes": [
+        return ScreenDescriptor(
+            id=self._id,
+            sizes=[size for size in sizes.values()],
+            size=screen_size if screen_size is not None else None,
+            outputs=[output.get_info() for output_id, output in self.__outputs.items()],
+            modes=[
                 format_mode(mode_id, mode) for mode_id, mode in self.__modes.items()
             ],
-        }
-
-        return screen_info
+        )
 
     @staticmethod
     def load_from_identifier(display, screen_id):

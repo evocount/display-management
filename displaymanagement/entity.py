@@ -1,5 +1,4 @@
 from abc import abstractmethod
-import json
 
 
 class Entity:
@@ -27,4 +26,4 @@ class Entity:
         Returns the information represented by this Entity in JSON format
         """
         info = self.get_info()
-        return json.dumps(info)
+        return info.json()

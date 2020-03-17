@@ -18,6 +18,8 @@ This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to e
 This library is a wrapper for the python-xlib library. It is developed with the aim of providing an interface
 for managing the X display server without exposing all the thorough details of the software and hardware architectures of the display server, video card, monitors, etc...
 
+This Library uses `python-xlib` and `pedantic`
+
 ---
 
 ## Terminology
@@ -71,6 +73,9 @@ _*The world of X follows an ambiguous and rather confusing set of terminologies,
     A [Multihead](https://wiki.archlinux.org/index.php/Multihead) setup may refer to one of 2 things.
     1. An X screen having more than 1 monitor attached
     2. Having multiple physical displays by configuring a multi Screen setup each with 1(or more) monitors
+
+12. EDID
+    And [Extended Display Identification Data](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data) is a data format used by a physical display to export its capabilities. It contains data such as manufacturer name, serial number, display sizem etc... .  
 
 ---
 
@@ -170,3 +175,8 @@ The X libs, tools and design are severly under documented, here you will find ma
 - Some not very important functions in the `Screen` class are broken, this is caused by either a misuse of the params of the python-xlib functions(Documentation issues?) or rather by a bug in the python-xlib function itself issuing malformed requests to the low level library beneath it. Either way, the functions' importance is not significant enough for investigating the real cause of the issue.
 
 - Exception handling is mostly deferred to python-xlib. This is due to the fact that exception handling is severly under documented and the Exceptions thrown by pythn-xlib have a very specific ad-hoc format defined by the low level xlib library.
+
+- python-xlib provides events to for handling state changes from outside source. Currently, these are not used and only events originating from this library is assumed. The three possible implementations for this are as follows.
+  - Reload the entire state everytime (Easy and allows expanding the lib to handle events later on, but slowest)
+  - Program every function to load the required state everytime (Slightly faster in principle, but, makes it very hard to modify or add new functionality later on)
+  - Handle the events (Most efficient solution but would require the most additional work effort as well as potentially running into concurrency?)

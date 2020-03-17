@@ -2,6 +2,7 @@ from Xlib import display
 from Xlib.ext import randr
 from .screen import Screen
 from .entity import Entity
+from .model_descriptors.display_descriptor import DisplayDescriptor
 
 
 class Display(Entity):
@@ -34,6 +35,8 @@ class Display(Entity):
         super().__init__(id)
         self.__screens = []
         self.__display = None
+        self.init_display()
+        self.load_all_screens()
 
     def init_display(self):
         """
@@ -89,18 +92,11 @@ class Display(Entity):
         ........
         Returns
         -------
-        dict
-            Format:
-            {
-                "id": str,
-                "screen_count": int,
-                "screens": [screen_info] 
-            }
+        DisplayDescriptor
+            The descriptor of the display
         """
-        display_info = {
-            "id": self._id,
-            "screen_count": self.get_screen_count(),
-            "screens": [screen.get_info() for screen in self.__screens],
-        }
-
-        return display_info
+        return DisplayDescriptor(
+            id=self._id,
+            screen_count=self.get_screen_count(),
+            screens=[screen.get_info() for screen in self.__screens],
+        )
