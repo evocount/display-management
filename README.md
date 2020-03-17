@@ -74,8 +74,8 @@ _*The world of X follows an ambiguous and rather confusing set of terminologies,
     1. An X screen having more than 1 monitor attached
     2. Having multiple physical displays by configuring a multi Screen setup each with 1(or more) monitors
 
-12. EDID
-    And [Extended Display Identification Data](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data) is a data format used by a physical display to export its capabilities. It contains data such as manufacturer name, serial number, display sizem etc... .  
+12. EDID  
+    An [Extended Display Identification Data](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data) is a data format used by a physical display to export its capabilities. It contains data such as manufacturer name, serial number, display sizem etc... .  
 
 ---
 
