@@ -151,11 +151,51 @@ class Output(Entity):
             self.__x,
             self.__y,
             self.__active_mode_id,
-            rotation,
+            rotation.value,
             [self._id],
         )
         self.__config_timestamp = result._data["new_timestamp"]
-        self.__rotation = rotation
+        self.__rotation = rotation.value
+
+    def disable(self):
+        """
+        Disables output if connected
+        """
+        if self.__is_connected:
+            result = self.__display.xrandr_set_crtc_config(
+                self.__target_crtc_id,
+                self.__config_timestamp,
+                self.__x,
+                self.__y,
+                0,
+                self.__rotation,
+                [],
+            )
+            self.__config_timestamp = result._data["new_timestamp"]
+
+    def get_EDID(self):
+        """
+            Returns the EDID of the monitor represented by the display
+        """
+        # TODO: check if has EDID property
+        # TODO: return descriptor instead of raw binary data
+        EDID_ATOM = 313
+        EDID_TYPE = 19
+        edid_info = self.__display.xrandr_get_output_property(
+            self._id, EDID_ATOM, EDID_TYPE, 0, 128
+        )
+        return edid_info._data["value"]
+
+    @property
+    def Connected(self):
+        """
+        Returns true if the output is connected.
+        .......
+        Returns
+        bool
+            The output connection status.
+        """
+        return self.__is_connected
 
     def get_info(self):
         """

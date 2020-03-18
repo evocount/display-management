@@ -139,6 +139,9 @@ This is a brief overview of them.
    - _`set_position(x,y)`:_ Sets the position of the output.
    - _`set_rotation(rotation)`:_ Sets the rotation of the output.
    - _`get_info()`:_ Returns all relevant information about this output's resources.
+   - _`disable()`:_ Disables the output.
+   - _`get_EDID()`: Gets the EDID info of the connected monitor to this output.
+   - _`Connected()`:_ Returns true if the output is connected.
 
 - For an in-depth technical documentation check the docstrings
 - In addition to the main Classes, the library exposes an Enum Class `Rotation` which contains predefined orientation values

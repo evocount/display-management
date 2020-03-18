@@ -7,7 +7,7 @@ class Rotation(enum.Enum):
     Note: mirrored from randr
     """
 
-    NO_ROTATION = 0
+    NO_ROTATION = 1
     ROTATE_90 = 2
     ROTATE_180 = 4
     ROTATE_270 = 8

@@ -1,8 +1,7 @@
 from displaymanagement.display import Display
 
-DISPLAY_ID = ":1"
-
 # Load display
+DISPLAY_ID = ":1"
 display = Display(DISPLAY_ID)
 
 # Get display info

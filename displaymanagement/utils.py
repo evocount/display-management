@@ -1,6 +1,7 @@
 from string import Template
 from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.mode_info import ModeInfo
+from .model_descriptors.edid_descriptor import EDIDDescriptor
 
 
 def get_mode_dict_from_list(modes_resouces):
@@ -30,9 +31,9 @@ def get_modes_from_ids(mode_ids, modes):
     return {mode_id: modes[mode_id] for mode_id in mode_ids}
 
 
-####################
-# External Functions#
-####################
+#################################################
+# External Functions (Used on interface level) #
+#################################################
 
 
 def get_screen_sizes_from_list(screen_sizes):
@@ -92,4 +93,18 @@ def format_size(size):
     """
     return ScreenSize(
         width=size._data["width_in_pixels"], height=size._data["height_in_pixels"]
+    )
+
+
+def decode_edid(edid_data):
+    # TODO: implement decoding logic and use it
+    manufacturer_id = None
+    manufacturer_product_code = None
+    manufacturer_serial_number = None
+    aspect_ratio = None
+    return EDIDDescriptor(
+        manufacturer_id=manufacturer_id,
+        manufacturer_product_code=manufacturer_product_code,
+        manufacturer_serial_number=manufacturer_serial_number,
+        aspect_ratio=aspect_ratio,
     )
