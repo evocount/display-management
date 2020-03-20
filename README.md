@@ -18,7 +18,7 @@ This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to e
 This library is a wrapper for the python-xlib library. It is developed with the aim of providing an interface
 for managing the X display server without exposing all the thorough details of the software and hardware architectures of the display server, video card, monitors, etc...
 
-This Library uses `python-xlib` and `pedantic`
+This Library uses `python-xlib`, `pedantic` and `pyedid`
 
 ---
 
@@ -76,6 +76,10 @@ _*The world of X follows an ambiguous and rather confusing set of terminologies,
 
 12. EDID  
     An [Extended Display Identification Data](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data) is a data format used by a physical display to export its capabilities. It contains data such as manufacturer name, serial number, display sizem etc... .  
+
+13. PNP ID  
+    The [Plug and Play ID](https://en.wikipedia.org/wiki/Legacy_Plug_and_Play) is basically a 3 letter manufacturer ID of the physical display in the context of this library.  
+    A list of manufacturers can be found [here](https://uefi.org/pnp_id_list)
 
 ---
 

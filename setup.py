@@ -8,5 +8,5 @@ setup(
     author="EvoCount",
     packages=["displaymanagement", "displaymanagement/model_descriptors"],
     python_requires=">=3.0",
-    install_requires=["pydantic", "python-xlib"],
+    install_requires=["pydantic", "python-xlib", "pyedid"],
 )

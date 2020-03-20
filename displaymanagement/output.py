@@ -1,8 +1,10 @@
 from Xlib.ext import randr
+from pyedid.edid import Edid
 from .utils import get_modes_from_ids, format_mode
 from .rotation import Rotation
 from .entity import Entity
 from .model_descriptors.output_descriptor import OutputDescriptor
+from .resources import PNP_REGISTRY
 
 
 class Output(Entity):
@@ -173,7 +175,7 @@ class Output(Entity):
             )
             self.__config_timestamp = result._data["new_timestamp"]
 
-    def get_EDID(self):
+    def get_edid(self):
         """
             Returns the EDID of the monitor represented by the display
         """
@@ -184,7 +186,9 @@ class Output(Entity):
         edid_info = self.__display.xrandr_get_output_property(
             self._id, EDID_ATOM, EDID_TYPE, 0, 128
         )
-        return edid_info._data["value"]
+
+        edid = Edid(bytes(edid_info._data["value"]), PNP_REGISTRY)
+        return edid
 
     @property
     def Connected(self):
