@@ -2,6 +2,10 @@
 
 This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to expose relevant functionality for managing the displays on EvoCount's PDMs
 
+:warning: **WARNING** while xlib should be generally safe to use, some low level methods in principle can damage hardware.  
+    - Never use low level state altering methods like modifying output props unless you know what you are doing.  
+    - Don't assign invalid, unsupported modelines. Xlib should prevent you from doing so but it doesn't explicitly state that It prevents all possible mistakes.  
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -79,7 +83,8 @@ _*The world of X follows an ambiguous and rather confusing set of terminologies,
 
 13. PNP ID  
     The [Plug and Play ID](https://en.wikipedia.org/wiki/Legacy_Plug_and_Play) is basically a 3 letter manufacturer ID of the physical display in the context of this library.  
-    A list of manufacturers can be found [here](https://uefi.org/pnp_id_list)
+    A list of manufacturers can be found [here](https://uefi.org/pnp_id_list)  
+    Any monitor which exposes an EDID is a PnP monitor
 
 ---
 
@@ -134,6 +139,7 @@ This is a brief overview of them.
    - _`set_size(size_id)`:_ Sets the size of the screen according to a size id from the list of possible sizes.
    - _`set_refresh_rate(rate)`:_ Sets the refresh rate of the screen.
    - _`get_info()`:_ Returns information about this screen's resources.
+   - _`create_mode(self, name, width, height, refresh_rate, interlace)`:_ Creates a new mode for the screen to be used by its outputs.  
    - _`Outputs()`:_ Returns all outputs associated with this screen.
 
 3. `Output`  
@@ -144,7 +150,8 @@ This is a brief overview of them.
    - _`set_rotation(rotation)`:_ Sets the rotation of the output.
    - _`get_info()`:_ Returns all relevant information about this output's resources.
    - _`disable()`:_ Disables the output.
-   - _`get_EDID()`: Gets the EDID info of the connected monitor to this output.
+   - _`get_EDID()`:_ Gets the EDID info of the connected monitor to this output.
+   - _`add_mode(mode_id)`:_ Adds a mode to the output.  
    - _`Connected()`:_ Returns true if the output is connected.
 
 - For an in-depth technical documentation check the docstrings
@@ -169,6 +176,7 @@ The X libs, tools and design are severly under documented, here you will find ma
 - http://python-xlib.sourceforge.net/doc/html/python-xlib_8.html#SEC7 \*_Only reference for python-xlib exceptions till now_\*
 - https://wiki.archlinux.org/index.php/Xrandr
 - https://xorg-team.pages.debian.net/xorg/howto/use-xrandr.html
+- https://glenwing.github.io/docs/VESA-CVT-1.2.pdf
 
 ---
 

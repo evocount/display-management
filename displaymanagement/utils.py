@@ -2,6 +2,21 @@ from string import Template
 from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.mode_info import ModeInfo
 from .model_descriptors.edid_descriptor import EDIDDescriptor
+from subprocess import check_output
+from functools import reduce
+import re
+
+MODE_FLAG_CODES = {
+    "+hsync": 0x00000001,
+    "-hsync": 0x00000002,
+    "+vsync": 0x00000004,
+    "-vsync": 0x00000008,
+    "interlace": 0x00000010,
+    "doublescan": 0x00000020,
+    "csync": 0x00000040,
+    "+csync": 0x00000080,
+    "-csync": 0x00000100,
+}
 
 
 def get_mode_dict_from_list(modes_resouces):
@@ -31,9 +46,73 @@ def get_modes_from_ids(mode_ids, modes):
     return {mode_id: modes[mode_id] for mode_id in mode_ids}
 
 
-#################################################
-# External Functions (Used on interface level) #
-#################################################
+def get_mode(width, height, refresh_rate, name, mode_id, interlace=False):
+    """
+    Generates a VESA CVT modeline from the given width height and refresh rate
+
+    Parameters
+    ----------
+    width : int
+        The width of the modeline
+    height : int
+        The height of the modeline
+    refresh_rate : float
+        The refresh rate of the modeline
+    name : str
+        The name of the mode
+    mode_id : int
+        The id to use for the mode
+    interlace : bool
+        Determines if the mode is interlaced
+
+    Returns
+    -------
+    dict
+        The generated modeline info
+    """
+    cvt_lines = check_output(["cvt", str(width), str(height), str(refresh_rate)])
+    cvt_lines = str(cvt_lines).split("\\n")
+    modeline_info = parse_modeline(
+        cvt_lines[-2], name, mode_id, ["Interlace"] if interlace else []
+    )
+    return modeline_info
+
+
+def parse_modeline(modeline, name, mode_id, additional_flags):
+    """
+    Parses the given modeline and returns a dictionary of properties
+    """
+    params = re.split(" +", modeline)
+    mode = {
+        "id": mode_id,
+        "width": int(params[3]),
+        "height": int(params[7]),
+        "dot_clock": int(float(params[2]) * (10 ** 6)),
+        "h_sync_start": int(params[4]),
+        "h_sync_end": int(params[5]),
+        "h_total": int(params[6]),
+        "h_skew": 0,
+        "v_sync_start": int(params[8]),
+        "v_sync_end": int(params[9]),
+        "v_total": int(params[10]),
+        "name_length": len(name),
+    }
+    flags = []
+    for i in range(11, len(params)):
+        flags.append(params[i])
+    for flag in additional_flags:
+        flags.append(flag)
+
+    mode["flags"] = reduce(
+        lambda acc, val: acc | val, [MODE_FLAG_CODES[flag.lower()] for flag in flags]
+    )
+
+    return mode
+
+
+###################################################
+# External Functions (Used on an interface level) #
+###################################################
 
 
 def get_screen_sizes_from_list(screen_sizes):

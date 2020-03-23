@@ -6,9 +6,11 @@ from .utils import (
     get_screen_sizes_from_list,
     format_mode,
     format_size,
+    get_mode,
 )
 from .entity import Entity
 from .model_descriptors.screen_descriptor import ScreenDescriptor
+import random
 
 
 class Screen(Entity):
@@ -102,6 +104,33 @@ class Screen(Entity):
             self.__screen_size_id, randr.Rotate_0, self.__config_timestamp, 0
         )
         self.__config_timestamp = result._data["config_timestamp"]
+
+    def create_mode(self, name, width, height, refresh_rate, interlace=False):
+        """
+        Adds a mode to the list of modes of this screen and returns its ID
+
+        Parameters
+        ----------
+        name : str
+            The name of the mode
+        width : int
+            The widt of the mode
+        height : int
+            The height of the mode
+        refresh_rate : float
+            The refresh rate of the mode
+        interlace : bool
+            If the mode is interlaced
+
+        Returns
+        -------
+        int
+            The id of the new mode
+        """
+        mode_id = random.randint(0, 0x7FFFFFFF)  # random id
+        mode = get_mode(width, height, refresh_rate, name, mode_id, interlace)
+        self.__screen.root.xrandr_create_mode(mode, name)
+        return mode_id
 
     @property
     def Outputs(self):

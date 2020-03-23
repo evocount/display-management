@@ -194,6 +194,17 @@ class Output(Entity):
         edid = Edid(bytes(edid_info._data["value"]), get_pnp_info())
         return format_edid(edid)
 
+    def add_mode(self, mode_id):
+        """
+        Adds a mode to be used by this output if it is within the containing screen's modes and
+        it is applicable for this output
+        
+        Parameters
+        mode_id : int
+            The mode id to add
+        """
+        self.__display.xrandr_add_output_mode(self._id, mode_id)
+
     @property
     def Connected(self):
         """
