@@ -187,3 +187,5 @@ The X libs, tools and design are severly under documented, here you will find ma
   - Reload the entire state everytime (Easy and allows expanding the lib to handle events later on, but slowest)
   - Program every function to load the required state everytime (Slightly faster in principle, but, makes it very hard to modify or add new functionality later on)
   - Handle the events (Most efficient solution but would require the most additional work effort as well as potentially running into concurrency?)
+
+- What the turn output off funtionality really does is that it turns off the CRTC associated with it.
