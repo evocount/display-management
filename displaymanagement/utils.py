@@ -96,15 +96,30 @@ def format_size(size):
     )
 
 
-def decode_edid(edid_data):
-    # TODO: implement decoding logic and use it
-    manufacturer_id = None
-    manufacturer_product_code = None
-    manufacturer_serial_number = None
-    aspect_ratio = None
+def format_edid(edid_data):
+    """
+    Takes in EDID info and returns an EDIDDescriptor describing the relevant info of the monitor
+    ..........
+    Parameters
+    ----------
+    edid_data : Edid
+        The edid object describing the monitor
+
+    Returns
+    -------
+    EDIDDescriptor
+        The descriptor of relevant info of the edid
+    """
+    manufacturer = edid_data.manufacturer
+    manufacturer_product_code = edid_data.product
+    manufacturer_serial_number = edid_data.serial
+    width = edid_data.width
+    height = edid_data.height
+
     return EDIDDescriptor(
-        manufacturer_id=manufacturer_id,
+        manufacturer=manufacturer,
         manufacturer_product_code=manufacturer_product_code,
         manufacturer_serial_number=manufacturer_serial_number,
-        aspect_ratio=aspect_ratio,
+        width=width,
+        height=height,
     )

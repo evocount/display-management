@@ -1,10 +1,10 @@
 from Xlib.ext import randr
 from pyedid.edid import Edid
-from .utils import get_modes_from_ids, format_mode
+from .utils import get_modes_from_ids, format_mode, format_edid
 from .rotation import Rotation
 from .entity import Entity
 from .model_descriptors.output_descriptor import OutputDescriptor
-from .resources import PNP_REGISTRY
+from .resources import get_pnp_info
 
 
 class Output(Entity):
@@ -144,8 +144,8 @@ class Output(Entity):
         ..........
         Parameters
         ----------
-            rotation : Rotation, optional
-                The rotation mode (default is no rotation)
+        rotation : Rotation, optional
+            The rotation mode (default is no rotation)
         """
         result = self.__display.xrandr_set_crtc_config(
             self.__target_crtc_id,
@@ -177,7 +177,11 @@ class Output(Entity):
 
     def get_edid(self):
         """
-            Returns the EDID of the monitor represented by the display
+        Returns the EDID of the monitor represented by the display
+        .......
+        Returns
+        EDIDInfo
+            The EDID info of the monitor associated with this output
         """
         # TODO: check if has EDID property
         # TODO: return descriptor instead of raw binary data
@@ -187,8 +191,8 @@ class Output(Entity):
             self._id, EDID_ATOM, EDID_TYPE, 0, 128
         )
 
-        edid = Edid(bytes(edid_info._data["value"]), PNP_REGISTRY)
-        return edid
+        edid = Edid(bytes(edid_info._data["value"]), get_pnp_info())
+        return format_edid(edid)
 
     @property
     def Connected(self):
