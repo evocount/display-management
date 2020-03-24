@@ -17,7 +17,7 @@ class Screen(Entity):
     """
     Represents an X screen on a display.
     Inherits from Entity.
-    .......
+
     Methods
     -------
     get_sizes()
@@ -75,7 +75,7 @@ class Screen(Entity):
         """
         *BROKEN*
         Sets the size of the screen according to a size id from the list of possible sizes.
-        ..........
+
         Parameters
         ----------
         size_id : int
@@ -93,7 +93,7 @@ class Screen(Entity):
         """
         *BROKEN*
         Sets the refresh rate of the screen.
-        ..........
+
         Parameters
         ----------
         rate : int, optional
@@ -142,7 +142,7 @@ class Screen(Entity):
     def get_info(self):
         """
         Returns a dictionary containing all relevant information about this screen's resources.
-        ........
+
         Returns
         -------
         dict
@@ -165,7 +165,7 @@ class Screen(Entity):
     def load_from_identifier(display, screen_id):
         """
         Loads the screen specified by the screen_id and returns a corresponding screen object.
-        ..........
+
         Parameters
         ----------
         display : XDisplay

@@ -11,14 +11,21 @@ class Output(Entity):
     """
     Represents an output port (real or virtual) defined for an X screen
     Inherits from Entity
-    .......
+
     Methods
     -------
     get_available_modes_info()
     set_mode(mode_id)
     set_position(x,y)
     set_rotation(rotation)
+    disable()
+    get_edid()
+    add_mode(mode_id)
     get_info()
+
+    Properties
+    ----------
+    Connected()
 
     Static Methods
     --------------
@@ -82,7 +89,7 @@ class Output(Entity):
     def get_available_modes_info(self):
         """
         Returns info about all available modes for this screen.
-        ......
+
         Returns
         list
             A list of available modes
@@ -92,7 +99,7 @@ class Output(Entity):
     def set_mode(self, mode_id):
         """
         Sets the mode of the output to the one referenced by the mode_id
-        ..........
+
         Parameters
         ----------
         mode_id : int
@@ -113,7 +120,7 @@ class Output(Entity):
     def set_position(self, x=None, y=None):
         """
         Sets the position of the output.
-        ..........
+
         Parameters
         ----------
         x : int, optional
@@ -141,7 +148,7 @@ class Output(Entity):
     def set_rotation(self, rotation=Rotation.NO_ROTATION):
         """
         Sets the rotation of the output.
-        ..........
+
         Parameters
         ----------
         rotation : Rotation, optional
@@ -178,7 +185,7 @@ class Output(Entity):
     def get_edid(self):
         """
         Returns the EDID of the monitor represented by the display
-        .......
+
         Returns
         EDIDInfo
             The EDID info of the monitor associated with this output
@@ -209,7 +216,7 @@ class Output(Entity):
     def Connected(self):
         """
         Returns true if the output is connected.
-        .......
+
         Returns
         bool
             The output connection status.
@@ -219,7 +226,7 @@ class Output(Entity):
     def get_info(self):
         """
         Returns a dictionary containing all relevant information about this output's resources.
-        ........
+
         Returns
         -------
         OutputDescriptor
@@ -241,7 +248,7 @@ class Output(Entity):
     ):
         """
         Loads the outputs identified by the output_id and returns the corresponding Output object.
-        ..........
+
         Parameters
         ----------
         display : XDisplay

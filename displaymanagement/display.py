@@ -9,7 +9,7 @@ class Display(Entity):
     """
     Represents an X display which corresponds to an X server.
     Inherits from Entity
-    .......
+
     Methods
     -------
     init_display()
@@ -54,7 +54,7 @@ class Display(Entity):
     def load_screen(self, screen_identifier=None):
         """
         Loads the screen resources identified by the screen_identifier for this display.
-        ..........
+        
         Parameters
         ----------
         screen_identifier : int, optional
@@ -78,7 +78,7 @@ class Display(Entity):
     def Screens(self):
         """
         Returns the list of all loaded screens associated with this display.
-        .......
+        
         Returns
         -------
         list
@@ -89,7 +89,7 @@ class Display(Entity):
     def get_info(self):
         """
         Returns a dictionary containing all relevant information about this display's loaded resources.
-        ........
+        
         Returns
         -------
         DisplayDescriptor

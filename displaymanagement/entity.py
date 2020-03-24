@@ -4,7 +4,7 @@ from abc import abstractmethod
 class Entity:
     """
     Represents a display management entity
-    .......
+
     Methods
     -------
     get_info()

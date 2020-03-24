@@ -22,7 +22,7 @@ MODE_FLAG_CODES = {
 def get_mode_dict_from_list(modes_resouces):
     """
     Takes in a list of modes and returns a dictionary of them indexed by their IDs
-    ..........
+
     Parameters
     ----------
     modes_resouces : list
@@ -35,7 +35,7 @@ def get_modes_from_ids(mode_ids, modes):
     """
     Takes in a list of mode ids and a list of modes and returns a dictionary 
     of the provided mode ids with their correpsonding mode objects.
-    ..........
+
     Parameters
     ----------
     mode_ids : list
@@ -118,7 +118,7 @@ def parse_modeline(modeline, name, mode_id, additional_flags):
 def get_screen_sizes_from_list(screen_sizes):
     """
     Takes in a list of screen sizes and returns a dictionary of them indexed by their IDs
-    ..........
+
     Parameters
     ----------
     screen_sizes : list
@@ -130,7 +130,7 @@ def get_screen_sizes_from_list(screen_sizes):
 def format_mode(mode_id, mode):
     """
     Takes in a mode id and a mode object and return a dictionary containing the mode's width, height and refresh rate
-    ..........
+
     Parameters
     ----------
     mode_id : int
@@ -159,7 +159,7 @@ def format_mode(mode_id, mode):
 def format_size(size):
     """
     Takes in a size object and returns a dictionary containing the size's width and height
-    ..........
+
     Parameters
     ----------
     size : Size
@@ -178,7 +178,7 @@ def format_size(size):
 def format_edid(edid_data):
     """
     Takes in EDID info and returns an EDIDDescriptor describing the relevant info of the monitor
-    ..........
+
     Parameters
     ----------
     edid_data : Edid

@@ -7,7 +7,7 @@ PNP_REGISTRY = None
 def load_pnp_info(file_dir="displaymanagement/resources/pnp_info.csv"):
     """
     Loads the PNP registry from a CSV file
-    ..........
+
     Parameters
     ----------
     file_dir : str, optional
@@ -20,7 +20,7 @@ def load_pnp_info(file_dir="displaymanagement/resources/pnp_info.csv"):
 def get_pnp_info():
     """
     Loads the default PNP info if none exist and returns it
-    .......
+
     Returns
     -------
     dict
