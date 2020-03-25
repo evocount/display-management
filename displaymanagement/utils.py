@@ -4,6 +4,7 @@ from .model_descriptors.mode_info import ModeInfo
 from .model_descriptors.edid_descriptor import EDIDDescriptor
 from subprocess import check_output
 from functools import reduce
+from .exceptions import MalformedInputError
 import re
 
 MODE_FLAG_CODES = {
@@ -43,10 +44,25 @@ def get_modes_from_ids(mode_ids, modes):
     modes : dict
         a dictionary of modes indexed by their ids
     """
-    return {mode_id: modes[mode_id] for mode_id in mode_ids}
+    return {mode_id: modes[mode_id]._data for mode_id in mode_ids}
 
 
-def get_mode(width, height, refresh_rate, name, mode_id, interlace=False):
+# NOTE: Width and height and constrained by xlib to be 16bit vals.
+# refresh_rate has weaker constraints but the values calculated from it have a limit of 16 bits
+# as well, therefore, a bound of 480 is set which is reasonable as if the time of writing this note.
+def validate_mode(width, height, refresh_rate):
+    """
+    Validates that mode creation inputs are within boundaries.
+    """
+    if width < 0 or width > 65535:
+        raise MalformedInputError("width should be between 0 and 65535")
+    if height < 0 or height > 65535:
+        raise MalformedInputError("height should be between 0 and 65535")
+    if refresh_rate < 0 or refresh_rate > 480:
+        raise MalformedInputError("Refresh rate should be between 0 and 480")
+
+
+def get_mode(width, height, refresh_rate, name, mode_id, interlaced=False):
     """
     Generates a VESA CVT modeline from the given width height and refresh rate
 
@@ -62,7 +78,7 @@ def get_mode(width, height, refresh_rate, name, mode_id, interlace=False):
         The name of the mode
     mode_id : int
         The id to use for the mode
-    interlace : bool
+    interlaced : bool
         Determines if the mode is interlaced
 
     Returns
@@ -70,10 +86,11 @@ def get_mode(width, height, refresh_rate, name, mode_id, interlace=False):
     dict
         The generated modeline info
     """
+    validate_mode(width, height, refresh_rate)
     cvt_lines = check_output(["cvt", str(width), str(height), str(refresh_rate)])
     cvt_lines = str(cvt_lines).split("\\n")
     modeline_info = parse_modeline(
-        cvt_lines[-2], name, mode_id, ["Interlace"] if interlace else []
+        cvt_lines[-2], name, mode_id, ["Interlace"] if interlaced else []
     )
     return modeline_info
 
@@ -143,15 +160,15 @@ def format_mode(mode_id, mode):
     ModeInfo
         A descriptor of the mode info
     """
-    dot_clock = mode._data["dot_clock"]
-    h_total = mode._data["h_total"]
-    v_total = mode._data["v_total"]
+    dot_clock = mode["dot_clock"]
+    h_total = mode["h_total"]
+    v_total = mode["v_total"]
     refresh_rate = dot_clock / (h_total * v_total)
 
     return ModeInfo(
-        id=mode._data["id"],
-        width=mode._data["width"],
-        height=mode._data["height"],
+        id=mode["id"],
+        width=mode["width"],
+        height=mode["height"],
         refresh_rate=refresh_rate,
     )
 

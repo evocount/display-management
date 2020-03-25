@@ -10,5 +10,5 @@ screen = display.Screens[0]
 # Get an active output
 outputs = screen.Outputs
 for output in outputs.values():
-    if output.Connected:
+    if output.Connected and output.has_edid():
         print(output.get_edid())

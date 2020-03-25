@@ -23,6 +23,7 @@ class Screen(Entity):
     get_sizes()
     set_size(size_id)
     set_refresh_rate(rate)
+    create_mode(self, name, width, height, refresh_rate, interlaced)
     get_info()
     
     Static Methods
@@ -71,6 +72,7 @@ class Screen(Entity):
         sizes = get_screen_sizes_from_list(screen_info._data["sizes"])
         return sizes
 
+    # BUG
     def set_size(self, size_id):
         """
         *BROKEN*
@@ -89,6 +91,7 @@ class Screen(Entity):
         self.__config_timestamp = result._data["config_timestamp"]
         self.__screen_size_id = size_id
 
+    # BUG
     def set_refresh_rate(self, rate=0):
         """
         *BROKEN*
@@ -105,7 +108,7 @@ class Screen(Entity):
         )
         self.__config_timestamp = result._data["config_timestamp"]
 
-    def create_mode(self, name, width, height, refresh_rate, interlace=False):
+    def create_mode(self, name, width, height, refresh_rate, interlaced=False):
         """
         Adds a mode to the list of modes of this screen and returns its ID
 
@@ -119,7 +122,7 @@ class Screen(Entity):
             The height of the mode
         refresh_rate : float
             The refresh rate of the mode
-        interlace : bool
+        interlaced : bool
             If the mode is interlaced
 
         Returns
@@ -128,7 +131,7 @@ class Screen(Entity):
             The id of the new mode
         """
         mode_id = random.randint(0, 0x7FFFFFFF)  # random id
-        mode = get_mode(width, height, refresh_rate, name, mode_id, interlace)
+        mode = get_mode(width, height, refresh_rate, name, mode_id, interlaced)
         self.__screen.root.xrandr_create_mode(mode, name)
         return mode_id
 

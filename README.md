@@ -140,7 +140,7 @@ This is a brief overview of them.
    - _`set_size(size_id)`:_ Sets the size of the screen according to a size id from the list of possible sizes.
    - _`set_refresh_rate(rate)`:_ Sets the refresh rate of the screen.
    - _`get_info()`:_ Returns information about this screen's resources.
-   - _`create_mode(self, name, width, height, refresh_rate, interlace)`:_ Creates a new mode for the screen to be used by its outputs.  
+   - _`create_mode(self, name, width, height, refresh_rate, interlaced)`:_ Creates a new mode for the screen to be used by its outputs.  
    - _`Outputs()`:_ Returns all outputs associated with this screen.
 
 3. `Output`  
@@ -153,6 +153,7 @@ This is a brief overview of them.
    - _`disable()`:_ Disables the output.
    - _`get_EDID()`:_ Gets the EDID info of the connected monitor to this output.
    - _`add_mode(mode_id)`:_ Adds a mode to the output.  
+   - _`has_edid()`:_ Checks if the output's connected monitor exposes an EDID property.  
    - _`Connected()`:_ Returns true if the output is connected.
 
 - For an in-depth technical documentation check the docstrings
@@ -198,3 +199,5 @@ The X libs, tools and design are severly under documented, here you will find ma
   - Handle the events (Most efficient solution but would require the most additional work effort as well as potentially running into concurrency?)
 
 - What the turn output off funtionality really does is that it turns off the CRTC associated with it.
+
+- Creating modes for screens and adding them to outputs is a non persistent operation. For persistent configs use the xorg config files.

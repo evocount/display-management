@@ -1,10 +1,12 @@
 from Xlib.ext import randr
+from Xlib.ext.randr import PROPERTY_RANDR_EDID
 from pyedid.edid import Edid
 from .utils import get_modes_from_ids, format_mode, format_edid
 from .rotation import Rotation
 from .entity import Entity
 from .model_descriptors.output_descriptor import OutputDescriptor
 from .resources import get_pnp_info
+from .exceptions import ResourceError, InvalidStateError
 
 
 class Output(Entity):
@@ -22,6 +24,7 @@ class Output(Entity):
     get_edid()
     add_mode(mode_id)
     get_info()
+    has_edid()
 
     Properties
     ----------
@@ -105,6 +108,11 @@ class Output(Entity):
         mode_id : int
             The ID of the mode to set
         """
+        if mode_id not in self.__modes:
+            raise ResourceError(
+                "Mode ID is not in the list of supported modes for this output, use add_mode to add it first."
+            )
+
         result = self.__display.xrandr_set_crtc_config(
             self.__target_crtc_id,
             self.__config_timestamp,
@@ -190,16 +198,41 @@ class Output(Entity):
         EDIDInfo
             The EDID info of the monitor associated with this output
         """
-        # TODO: check if has EDID property
-        # TODO: return descriptor instead of raw binary data
-        EDID_ATOM = 313
+        if not self.has_edid():
+            raise ResourceError("Connected monitor does not provide an EDID property")
+
+        EDID_ATOM = self.__display.intern_atom(PROPERTY_RANDR_EDID)
         EDID_TYPE = 19
+        EDID_LENGTH = 128
         edid_info = self.__display.xrandr_get_output_property(
-            self._id, EDID_ATOM, EDID_TYPE, 0, 128
+            self._id, EDID_ATOM, EDID_TYPE, 0, EDID_LENGTH
         )
 
         edid = Edid(bytes(edid_info._data["value"]), get_pnp_info())
         return format_edid(edid)
+
+    def has_edid(self):
+        """
+        Checks if the output's connected monitor exposes an EDID property.
+
+        Returns
+        bool
+            Whether the connected monitor exposes an EDID property or not
+        """
+        if not self.__is_connected:
+            raise InvalidStateError("Output is not connected to any monitor")
+
+        EDID_ATOM = self.__display.intern_atom(PROPERTY_RANDR_EDID)
+        EDID_TYPE = 19
+        EDID_LENGTH = 128
+        edid_info = self.__display.xrandr_get_output_property(
+            self._id, EDID_ATOM, EDID_TYPE, 0, EDID_LENGTH
+        )
+
+        if edid_info._data["property_type"] == 0:
+            return False
+
+        return True
 
     def add_mode(self, mode_id):
         """
