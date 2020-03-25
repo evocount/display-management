@@ -175,7 +175,7 @@ The X libs, tools and design are severly under documented, here you will find ma
 - https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/raw/master/randrproto.txt
 - http://www.rahul.net/kenton/xglossary.html
 - http://python-xlib.sourceforge.net/doc/html/python-xlib_toc.html
-- http://python-xlib.sourceforge.net/doc/html/python-xlib_8.html#SEC7 \*_Only reference for python-xlib exceptions till now_\*
+- http://python-xlib.sourceforge.net/doc/html/python-xlib_8.html#SEC7 \*_Only reference for python-xlib exceptions till the time of writing this_\*
 - https://wiki.archlinux.org/index.php/Xrandr
 - https://xorg-team.pages.debian.net/xorg/howto/use-xrandr.html
 - https://glenwing.github.io/docs/VESA-CVT-1.2.pdf
