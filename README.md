@@ -187,11 +187,7 @@ The X libs, tools and design are severly under documented, here you will find ma
 - Currently this library follows the same interface as the xrandr command line tool.  
   This does not allow setting multiple outputs for one CRTC, i.e., mirroring displays.
 
-- Some edge cases are not handled in the library, these are marked with `TODO:`. the underlying library will handle this cases but a meaningful exception should be thrown.
-
 - Some not very important functions in the `Screen` class are broken, this is caused by either a misuse of the params of the python-xlib functions(Documentation issues?) or rather by a bug in the python-xlib function itself issuing malformed requests to the low level library beneath it. Either way, the functions' importance is not significant enough for investigating the real cause of the issue.
-
-- Exception handling is mostly deferred to python-xlib. This is due to the fact that exception handling is severly under documented and the Exceptions thrown by pythn-xlib have a very specific ad-hoc format defined by the low level xlib library.
 
 - python-xlib provides events to for handling state changes from outside source. Currently, these are not used and only events originating from this library is assumed. The three possible implementations for this are as follows.
   - Reload the entire state everytime (Easy and allows expanding the lib to handle events later on, but slowest)
