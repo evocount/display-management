@@ -130,10 +130,10 @@ class Screen(Entity):
         int
             The id of the new mode
         """
-        mode_id = random.randint(0, 0x7FFFFFFF)  # random id
-        mode = get_mode(width, height, refresh_rate, name, mode_id, interlaced)
-        self.__screen.root.xrandr_create_mode(mode, name)
-        return mode_id
+        # xlib sets the mode id automatically
+        mode = get_mode(width, height, refresh_rate, name, 0, interlaced)
+        mode_id = self.__screen.root.xrandr_create_mode(mode, name)
+        return mode_id._data["mode"]
 
     @property
     def Outputs(self):
