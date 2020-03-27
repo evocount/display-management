@@ -40,6 +40,7 @@ class Output(Entity):
     def __init__(
         self,
         id,
+        name,
         display,
         screen,
         output,
@@ -57,6 +58,8 @@ class Output(Entity):
         ----------
         id : int
             The ID of the output.
+        name : str
+            The name of the output.
         display : XDisplay
             The underlying X display object which contains this output.
         screen : XScreen
@@ -79,6 +82,7 @@ class Output(Entity):
             The time at which the screen which contains this object was last changed. 
         """
         super().__init__(id)
+        self.__name = name
         self.__display = display
         self.__screen = screen
         self.__output = output
@@ -299,6 +303,7 @@ class Output(Entity):
         )
         return OutputDescriptor(
             id=self._id,
+            name=self.__name,
             current_mode_id=current_mode_id,
             available_mode_ids=list(self.__modes.keys()),
             is_connected=self.__is_connected,
@@ -331,6 +336,7 @@ class Output(Entity):
         """
         output = display.xrandr_get_output_info(output_id, config_timestamp)
         output_data = output._data
+        name = output_data["name"]
         is_connected = output_data["connection"] == randr.Connected
         output_modes = get_modes_from_ids(output_data["modes"], screen_modes)
         target_crtc_id = output_data["crtc"]
@@ -348,6 +354,7 @@ class Output(Entity):
         active_mode_id = target_crtc_info._data["mode"] if is_connected else None
         return Output(
             output_id,
+            name,
             display,
             screen,
             output,
