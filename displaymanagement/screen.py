@@ -33,6 +33,7 @@ class Screen(Entity):
     Properties
     ----------
     Outputs()
+    CRTC_IDs()
     """
 
     def __init__(
@@ -141,6 +142,12 @@ class Screen(Entity):
         Returns a dictionary of all outputs associated with this screen indexed with their IDs.
         """
         return self.__outputs
+
+    def CRTC_IDs(self):
+        """
+        Returns the CRTC IDs associated with the video device driving this screen
+        """
+        return self.__crtc_ids
 
     def get_info(self):
         """

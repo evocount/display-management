@@ -17,10 +17,11 @@ class Output(Entity):
     Methods
     -------
     get_available_modes_info()
-    set_mode(mode_id)
+    set_mode(mode_id, crtc_id)
     set_position(x,y)
     set_rotation(rotation)
     disable()
+    re_enable()
     get_edid()
     add_mode(mode_id)
     get_info()
@@ -29,6 +30,7 @@ class Output(Entity):
     Properties
     ----------
     Connected()
+    CRTC_ID()
 
     Static Methods
     --------------
@@ -99,7 +101,7 @@ class Output(Entity):
         """
         return [format_mode(mode_id, mode) for mode_id, mode in self.__modes.items()]
 
-    def set_mode(self, mode_id):
+    def set_mode(self, mode_id, crtc_id=None):
         """
         Sets the mode of the output to the one referenced by the mode_id
 
@@ -107,14 +109,20 @@ class Output(Entity):
         ----------
         mode_id : int
             The ID of the mode to set
+        crtc_id : int, optional
+            The crtc ID to connect to (default is None). If this output was previously not connected,
+            this has to be specified
         """
+        if crtc_id is None:
+            crtc_id = self.__target_crtc_id
+
         if mode_id not in self.__modes:
             raise ResourceError(
                 "Mode ID is not in the list of supported modes for this output, use add_mode to add it first."
             )
 
         result = self.__display.xrandr_set_crtc_config(
-            self.__target_crtc_id,
+            crtc_id,
             self.__config_timestamp,
             self.__x,
             self.__y,
@@ -124,6 +132,7 @@ class Output(Entity):
         )
         self.__config_timestamp = result._data["new_timestamp"]
         self.__active_mode_id = mode_id
+        self.__target_crtc_id = crtc_id
 
     def set_position(self, x=None, y=None):
         """
@@ -190,6 +199,14 @@ class Output(Entity):
             )
             self.__config_timestamp = result._data["new_timestamp"]
 
+    def re_enable(self):
+        """
+        If this output was connected before, connects to the last crtc_id it was
+        connected to with the mode that it was connected with.
+        """
+        if self.__target_crtc_id is not None:
+            self.set_mode(self.__active_mode_id, self.__target_crtc_id)
+
     def get_edid(self):
         """
         Returns the EDID of the monitor represented by the display
@@ -255,6 +272,17 @@ class Output(Entity):
             The output connection status.
         """
         return self.__is_connected
+
+    @property
+    def CRTC_ID(self):
+        """
+        Returns the CRTC ID this output is connectd to or None if it is not connected
+        
+        Returns
+        int
+            The CRTC ID
+        """
+        return self.__target_crtc_id
 
     def get_info(self):
         """

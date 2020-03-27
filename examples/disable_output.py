@@ -15,3 +15,5 @@ for output in outputs.values():
     if output.Connected:
         # Disable all outputs
         output.disable()
+        # Re-enable it
+        output.re_enable()

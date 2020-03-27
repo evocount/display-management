@@ -1,6 +1,7 @@
 # Display Management
 
-This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to expose relevant functionality for managing the displays on EvoCount's PDMs
+This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to expose relevant functionality for managing the displays on EvoCount's PDMs.  
+For setting up the X server screen layout check the [Screen Setup](docs/Screen_Setup) docs.  
 
 :warning: **WARNING** while xlib should be generally safe to use, some low level methods in principle can damage hardware.  
 
@@ -142,19 +143,22 @@ This is a brief overview of them.
    - _`get_info()`:_ Returns information about this screen's resources.
    - _`create_mode(self, name, width, height, refresh_rate, interlaced)`:_ Creates a new mode for the screen to be used by its outputs.  
    - _`Outputs()`:_ Returns all outputs associated with this screen.
+   - _`CRTC_IDs()`:_ Returns the CRTC IDs associated with the video device driving this screen.  
 
 3. `Output`  
    A wrapper for an output in accordance with the xrandr command-line tool interface that exposes the following methods
    - _`get_available_modes_info()`:_ Returns info about all available modes for this screen.
-   - _`set_mode(mode_id)`:_ Sets the mode of the output to the one referenced by the mode_id
+   - _`set_mode(mode_id, crtc_id)`:_ Sets the mode of the output to the one referenced by the mode_id
    - _`set_position(x,y)`:_ Sets the position of the output.
    - _`set_rotation(rotation)`:_ Sets the rotation of the output.
    - _`get_info()`:_ Returns all relevant information about this output's resources.
    - _`disable()`:_ Disables the output.
+   - _`re_enable()`:_ If this output was connected before, connects to the last crtc_id it was connected to with the mode that it was connected with.  
    - _`get_EDID()`:_ Gets the EDID info of the connected monitor to this output.
    - _`add_mode(mode_id)`:_ Adds a mode to the output.  
    - _`has_edid()`:_ Checks if the output's connected monitor exposes an EDID property.  
    - _`Connected()`:_ Returns true if the output is connected.
+   - _`CRTC_ID()`:_ Returns the CRTC ID this output is connectd to or None if it is not connected.  
 
 - For an in-depth technical documentation check the docstrings
 - In addition to the main Classes, the library exposes an Enum Class `Rotation` which contains predefined orientation values
