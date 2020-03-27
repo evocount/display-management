@@ -1,7 +1,7 @@
 # Display Management
 
 This library uses [python-xlib](https://github.com/python-xlib/python-xlib) to expose relevant functionality for managing the displays on EvoCount's PDMs.  
-For setting up the X server screen layout check the [SCREEN_SETUP.md](docs/Screen_Setup.md) docs.  
+For setting up the X server screen layout check the [Screen Setup](docs/SCREEN_SETUP.md) docs.  
 
 :warning: **WARNING** while xlib should be generally safe to use, some low level methods in principle can damage hardware.  
 
