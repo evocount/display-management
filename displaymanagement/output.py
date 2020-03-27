@@ -133,6 +133,7 @@ class Output(Entity):
         self.__config_timestamp = result._data["new_timestamp"]
         self.__active_mode_id = mode_id
         self.__target_crtc_id = crtc_id
+        self.__is_connected = True
 
     def set_position(self, x=None, y=None):
         """
