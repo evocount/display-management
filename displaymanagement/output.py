@@ -5,8 +5,10 @@ from .utils import get_modes_from_ids, format_mode, format_edid
 from .rotation import Rotation
 from .entity import Entity
 from .model_descriptors.output_descriptor import OutputDescriptor
+from .model_descriptors.crtc_info import CRTCInfo
 from .resources import get_pnp_info
 from .exceptions import ResourceError, InvalidStateError
+import enum
 
 
 class Output(Entity):
@@ -26,11 +28,13 @@ class Output(Entity):
     add_mode(mode_id)
     get_info()
     has_edid()
+    relative_place(output, orientation)
 
     Properties
     ----------
     Connected()
     CRTC_ID()
+    CRTC_Info()
 
     Static Methods
     --------------
@@ -116,6 +120,11 @@ class Output(Entity):
         crtc_id : int, optional
             The crtc ID to connect to (default is None). If this output was previously not connected,
             this has to be specified
+
+        Throws
+        ------
+        ResourceError
+            If the mode_id provided is not in the list of supported mode ids for this output.
         """
         if crtc_id is None:
             crtc_id = self.__target_crtc_id
@@ -219,6 +228,10 @@ class Output(Entity):
         Returns
         EDIDInfo
             The EDID info of the monitor associated with this output
+
+        Throws
+        ResourceError
+            If the output does not have an EDID property exposed
         """
         if not self.has_edid():
             raise ResourceError("Connected monitor does not provide an EDID property")
@@ -240,6 +253,10 @@ class Output(Entity):
         Returns
         bool
             Whether the connected monitor exposes an EDID property or not
+        
+        Throws
+        InvalidStateError
+            If output is not connected.
         """
         if not self.__is_connected:
             raise InvalidStateError("Output is not connected to any monitor")
@@ -266,6 +283,71 @@ class Output(Entity):
             The mode id to add
         """
         self.__display.xrandr_add_output_mode(self._id, mode_id)
+
+    def relative_place(self, output, orientation):
+        """
+        Places the output in a location relative to another output.
+        
+        Parameters
+        output : Output
+            The output to place relative to.
+        orientation : Orientation
+            The orientation relative to the other output
+
+        Raises
+        InvalidStateError
+            If either this output or the one placed relative to are disconnected.
+        """
+        if not self.__is_connected:
+            raise InvalidStateError("This output is not connected")
+        if not output.__is_connected:
+            raise InvalidStateError(
+                "Attempting to place this output relative to a disconnected output"
+            )
+
+        other_output_crtc = output.CRTC_Info
+        this_crtc = self.CRTC_Info
+        new_x = None
+        new_y = None
+        if orientation == Orientation.LEFT_OF:
+            new_x = other_output_crtc.x + other_output_crtc.width
+            new_Y = other_output_crtc.y
+        elif orientation == Orientation.RIGHT_OF:
+            new_x = other_output_crtc.x - this_crtc.width
+            new_Y = other_output_crtc.y
+        elif orientation == Orientation.ABOVE:
+            new_x = other_output_crtc.x
+            new_Y = other_output_crtc.y + other_output_crtc.height
+        elif orientation == Orientation.BELOW:
+            new_x = other_output_crtc.x
+            new_Y = other_output_crtc.y - this_crtc.height
+
+        # TODO: check screen boundaries and adjust if possible
+        self.set_position(new_x, new_y)
+
+    @property
+    def CRTC_Info(self):
+        """
+        Returns the crtc information for this output or None if it is not connected.
+
+        Returns 
+        ModeInfo
+            The mode info.
+        """
+        if not self.__is_connected:
+            return None
+
+        mode_info = self.__display.xrandr_get_crtc_info(
+            self.__target_crtc_id, self.__config_timestamp
+        )
+        self.__config_timestamp = mode_info._data["timestamp"]
+        return CRTCInfo(
+            x=mode_info._data["x"],
+            y=mode_info._data["y"],
+            width=mode_info._data["width"],
+            height=mode_info._data["height"],
+            mode_id=mode_info._data["mode"],
+        )
 
     @property
     def Connected(self):
@@ -301,12 +383,18 @@ class Output(Entity):
         current_mode_id = (
             self.__active_mode_id if self.__active_mode_id is not None else None
         )
+        crtc_info = self.CRTC_Info
         return OutputDescriptor(
             id=self._id,
             name=self.__name,
             current_mode_id=current_mode_id,
             available_mode_ids=list(self.__modes.keys()),
             is_connected=self.__is_connected,
+            x=crtc_info.x if crtc_info is not None else None,
+            y=crtc_info.y if crtc_info is not None else None,
+            width=crtc_info.width if crtc_info is not None else None,
+            height=crtc_info.height if crtc_info is not None else None,
+            rotation=self.__rotation,
         )
 
     @staticmethod
@@ -367,3 +455,14 @@ class Output(Entity):
             rotation,
             config_timestamp,
         )
+
+
+class Orientation(enum.Enum):
+    """
+    Represents the orientation of an output relative to another
+    """
+
+    LEFT_OF = 0
+    RIGHT_OF = 1
+    ABOVE = 2
+    BELOW = 3

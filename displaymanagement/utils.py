@@ -53,6 +53,10 @@ def get_modes_from_ids(mode_ids, modes):
 def validate_mode(width, height, refresh_rate):
     """
     Validates that mode creation inputs are within boundaries.
+
+    Throws
+    MalformedInputError
+        If the provided mode arguments are higher than their limits.
     """
     if width < 0 or width > 65535:
         raise MalformedInputError("width should be between 0 and 65535")

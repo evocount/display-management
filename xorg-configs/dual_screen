@@ -1,0 +1,31 @@
+Section "ServerLayout"
+	Identifier     "X.org Configured"
+	Screen      0  "Screen0"
+	Screen      1  "Screen1" RightOf "Screen1"
+EndSection
+
+Section "Device"
+	Identifier  "Card0"
+	Driver      "nouveau"
+	BusID       "PCI:1:0:0"
+	Screen 		0
+	Option 		"ZaphodHeads" "eDP1"
+EndSection
+
+Section "Device"
+	Identifier  "Card1"
+	Driver 		"nouveau"
+	BusID 		"PCI:1:0:0"
+	Screen 		1
+	Option 		"ZaphodHeads" "HDMI1"
+EndSection 
+
+Section "Screen"
+	Identifier "Screen0"
+	Device     "Card0"
+EndSection
+
+Section "Screen"
+	Identifier "Screen1"
+	Device     "Card1"
+EndSection

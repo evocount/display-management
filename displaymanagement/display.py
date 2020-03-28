@@ -61,6 +61,12 @@ class Display(Entity):
             The screen ID for the screen to load (Default is None, the default screen for the display).
         reload : bool, optional
             Whether the screen should be reloaded if it exists.
+
+        Throws
+        ------
+        ResourceError
+            If the screen referenced by the screen_identifier argument
+            does not exist.
         """
         # Throw a descriptive error if the screen number is out of range.
         screen_count = self.get_screen_count()

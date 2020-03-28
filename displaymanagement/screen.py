@@ -9,7 +9,7 @@ from .utils import (
     get_mode,
 )
 from .entity import Entity
-from .model_descriptors.screen_descriptor import ScreenDescriptor
+from .model_descriptors.screen_descriptor import ScreenDescriptor, ScreenSizeRange
 import random
 
 
@@ -25,6 +25,7 @@ class Screen(Entity):
     set_refresh_rate(rate)
     create_mode(self, name, width, height, refresh_rate, interlaced)
     get_info()
+    get_size_range()
     
     Static Methods
     --------------
@@ -72,6 +73,18 @@ class Screen(Entity):
         screen_info = self.__screen.root.xrandr_get_screen_info()
         sizes = get_screen_sizes_from_list(screen_info._data["sizes"])
         return sizes
+
+    def get_size_range(self):
+        """
+        Returns the size range allowed for this screen.
+        """
+        range = self.__screen.root.xrandr_get_screen_size_range()
+        return ScreenSizeRange(
+            min_width=range._data["min_width"],
+            max_width=range._data["max_width"],
+            min_height=range._data["min_height"],
+            max_height=range._data["max_height"],
+        )
 
     # BUG
     def set_size(self, size_id):
@@ -163,12 +176,12 @@ class Screen(Entity):
         screen_size = sizes[self.__screen_size_id] if len(sizes) > 0 else None
         return ScreenDescriptor(
             id=self._id,
-            sizes=[size for size in sizes.values()],
             size=screen_size if screen_size is not None else None,
             outputs=[output.get_info() for output_id, output in self.__outputs.items()],
             modes=[
                 format_mode(mode_id, mode) for mode_id, mode in self.__modes.items()
             ],
+            size_range=self.get_size_range(),
         )
 
     @staticmethod
