@@ -1,3 +1,4 @@
+from Xlib.error import XError
 from Xlib.ext import randr
 from Xlib.ext.randr import PROPERTY_RANDR_EDID
 from pyedid.edid import Edid
@@ -83,7 +84,7 @@ class Output(Entity):
         rotation : int
             The current rotation mode of the screen.
         config_timestamp : int
-            The time at which the screen which contains this object was last changed. 
+            The time at which the screen which contains this object was last changed.
         """
         super().__init__(id)
         self.__name = name
@@ -253,7 +254,7 @@ class Output(Entity):
         Returns
         bool
             Whether the connected monitor exposes an EDID property or not
-        
+
         Throws
         InvalidStateError
             If output is not connected.
@@ -277,7 +278,7 @@ class Output(Entity):
         """
         Adds a mode to be used by this output if it is within the containing screen's modes and
         it is applicable for this output
-        
+
         Parameters
         mode_id : int
             The mode id to add
@@ -287,7 +288,7 @@ class Output(Entity):
     def relative_place(self, output, orientation):
         """
         Places the output in a location relative to another output.
-        
+
         Parameters
         output : Output
             The output to place relative to.
@@ -330,11 +331,11 @@ class Output(Entity):
         """
         Returns the crtc information for this output or None if it is not connected.
 
-        Returns 
+        Returns
         ModeInfo
             The mode info.
         """
-        if not self.__is_connected:
+        if not self.__is_connected or not self.__target_crtc_id:
             return None
 
         mode_info = self.__display.xrandr_get_crtc_info(
@@ -364,7 +365,7 @@ class Output(Entity):
     def CRTC_ID(self):
         """
         Returns the CRTC ID this output is connectd to or None if it is not connected
-        
+
         Returns
         int
             The CRTC ID
@@ -430,16 +431,14 @@ class Output(Entity):
         target_crtc_id = output_data["crtc"]
         target_crtc_info = (
             display.xrandr_get_crtc_info(target_crtc_id, config_timestamp)
-            if is_connected
+            if is_connected and target_crtc_id
             else None
         )
-        target_crtc_info_data = (
-            target_crtc_info._data if target_crtc_info is not None else None
-        )
-        x = target_crtc_info_data["x"] if is_connected else None
-        y = target_crtc_info_data["y"] if is_connected else None
-        rotation = target_crtc_info_data["rotation"] if is_connected else None
-        active_mode_id = target_crtc_info._data["mode"] if is_connected else None
+        target_crtc_info_data = target_crtc_info._data if target_crtc_info else None
+        x = target_crtc_info_data["x"] if target_crtc_info else None
+        y = target_crtc_info_data["y"] if target_crtc_info else None
+        rotation = target_crtc_info_data["rotation"] if target_crtc_info else None
+        active_mode_id = target_crtc_info._data["mode"] if target_crtc_info else None
         return Output(
             output_id,
             name,
