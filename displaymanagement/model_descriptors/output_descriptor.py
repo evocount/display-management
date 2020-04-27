@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from .edid_descriptor import EDIDDescriptor
 from ..rotation import Rotation
 
 
@@ -12,6 +13,7 @@ class OutputDescriptor(BaseModel):
     x: Optional[int]
     y: Optional[int]
     rotation: Optional[Rotation]
+    edid: Optional[EDIDDescriptor]
 
     class Config:
         use_enum_values = True

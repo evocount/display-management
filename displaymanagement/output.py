@@ -227,7 +227,7 @@ class Output(Entity):
         Returns the EDID of the monitor represented by the display
 
         Returns
-        EDIDInfo
+        EDIDDescriptor
             The EDID info of the monitor associated with this output
 
         Throws
@@ -384,18 +384,21 @@ class Output(Entity):
         current_mode_id = (
             self.__active_mode_id if self.__active_mode_id is not None else None
         )
+        is_connected = self.__is_connected
         crtc_info = self.CRTC_Info
+
         return OutputDescriptor(
             id=self._id,
             name=self.__name,
             current_mode_id=current_mode_id,
             available_mode_ids=list(self.__modes.keys()),
-            is_connected=self.__is_connected,
+            is_connected=is_connected,
             x=crtc_info.x if crtc_info is not None else None,
             y=crtc_info.y if crtc_info is not None else None,
             width=crtc_info.width if crtc_info is not None else None,
             height=crtc_info.height if crtc_info is not None else None,
             rotation=self.__rotation,
+            edid=self.get_edid() if is_connected and self.has_edid() else None,
         )
 
     @staticmethod
