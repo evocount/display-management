@@ -398,7 +398,7 @@ class Output(Entity):
             width=crtc_info.width if crtc_info is not None else None,
             height=crtc_info.height if crtc_info is not None else None,
             rotation=self.__rotation,
-            edid=self.get_edid() if is_connected and self.has_edid() else None,
+            # edid=self.get_edid() if is_connected and self.has_edid() else None,
         )
 
     @staticmethod

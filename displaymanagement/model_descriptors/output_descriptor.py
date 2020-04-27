@@ -13,7 +13,7 @@ class OutputDescriptor(BaseModel):
     x: Optional[int]
     y: Optional[int]
     rotation: Optional[Rotation]
-    edid: Optional[EDIDDescriptor]
+    # edid: Optional[EDIDDescriptor]
 
     class Config:
         use_enum_values = True
