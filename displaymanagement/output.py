@@ -138,10 +138,10 @@ class Output(Entity):
         result = self.__display.xrandr_set_crtc_config(
             crtc_id,
             self.__config_timestamp,
-            self.__x,
-            self.__y,
+            self.__x or 0,  # __x will be None when mode is initially set
+            self.__y or 0,  # __y will be None when mode is initially set
             mode_id,
-            self.__rotation,
+            self.__rotation or Rotation.NO_ROTATION,
             [self._id],
         )
         self.__config_timestamp = result._data["new_timestamp"]
