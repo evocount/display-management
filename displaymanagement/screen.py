@@ -26,7 +26,7 @@ class Screen(Entity):
     create_mode(self, name, width, height, refresh_rate, interlaced)
     get_info()
     get_size_range()
-    
+
     Static Methods
     --------------
     load_from_identifier(display, screen_identifier)
@@ -38,7 +38,7 @@ class Screen(Entity):
     """
 
     def __init__(
-        self, id, screen, modes, outputs, crtc_ids, screen_size_id, config_timestamp
+        self, id, screen, modes, outputs, crtc_ids, screen_size_id, config_timestamp,
     ):
         """
         Parameters
@@ -156,6 +156,7 @@ class Screen(Entity):
         """
         return self.__outputs
 
+    @property
     def CRTC_IDs(self):
         """
         Returns the CRTC IDs associated with the video device driving this screen
@@ -195,7 +196,7 @@ class Screen(Entity):
             The underlying X display which contains the referenced screen
         screen_id : int
             The ID of the screen
-        
+
         Returns
         -------
         Screen
