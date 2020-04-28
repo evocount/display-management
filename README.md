@@ -141,6 +141,7 @@ This is a brief overview of them.
 
    - _`get_sizes()`:_ Returns all possible sizes for this screen.
    - _`set_size(width, height, dpi, width_mm, height_mm)`:_ Sets the size of the screen.
+   - _`adjust_size()`:_ Adjusts size of screen to fit outputs.
    - _`set_refresh_rate(rate)`:_ Sets the refresh rate of the screen.
    - _`get_info()`:_ Returns information about this screen's resources.
    - _`create_mode(name,width,height,refresh_rate,interlaced)`:_ Creates a new mode for the screen to be used by its outputs.

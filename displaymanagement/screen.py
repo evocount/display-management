@@ -10,6 +10,7 @@ from .utils import (
     get_mode,
 )
 from .entity import Entity
+from .rotation import Rotation
 from .model_descriptors.screen_descriptor import ScreenDescriptor, ScreenSizeRange
 from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.crtc_info import CRTCInfo
@@ -24,7 +25,8 @@ class Screen(Entity):
     Methods
     -------
     get_sizes()
-    set_size(size_id)
+    set_size(width, height, dpi, width_mm, height_mm)
+    adjust_size()
     set_refresh_rate(rate)
     create_mode(self, name, width, height, refresh_rate, interlaced)
     get_info()
@@ -144,12 +146,44 @@ class Screen(Entity):
             width_mm = width_mm or self.__width_mm
             height_mm = height_mm or self.__height_mm
 
+        # TODO raise exception instead of adjusting silently?
+        extrema = self.get_size_range()
+        width = min(max(width, extrema.min_width), extrema.max_width)
+        height = min(max(height, extrema.min_height), extrema.max_height)
+
         self.__screen.root.xrandr_set_screen_size(width, height, width_mm, height_mm)
 
         self.__width = width
         self.__height = height
         self.__width_mm = width_mm
         self.__height_mm = height_mm
+
+    def adjust_size(self):
+        """
+        Adjusts size to fit outputs.
+
+        WARNING Does not consider transformations, panning etc.
+        but only position, size and rotation of outputs
+        """
+        width = 0
+        height = 0
+
+        for _, output in self.Outputs.items():
+            crtc_info = output.CRTC_Info
+            if not crtc_info:
+                continue
+
+            sideways = crtc_info.rotation in [Rotation.ROTATE_90, Rotation.ROTATE_270]
+
+            output_width = crtc_info.height if sideways else crtc_info.width
+            output_height = crtc_info.width if sideways else crtc_info.height
+
+            width = max(width, crtc_info.x + output_width)
+            height = max(height, crtc_info.y + output_height)
+
+        dpi = (25.4 * self.__height) / self.__height_mm
+
+        return self.set_size(width, height, dpi=dpi)
 
     # BUG
     def set_refresh_rate(self, rate=0):
