@@ -12,6 +12,8 @@ class OutputDescriptor(BaseModel):
     is_connected: bool
     x: Optional[int]
     y: Optional[int]
+    width_mm: Optional[int]
+    height_mm: Optional[int]
     rotation: Optional[Rotation]
     # edid: Optional[EDIDDescriptor]
 

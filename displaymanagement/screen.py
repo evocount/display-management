@@ -160,7 +160,7 @@ class Screen(Entity):
 
     def adjust_size(self):
         """
-        Adjusts size to fit outputs.
+        Adjusts size of screen to fit outputs.
 
         WARNING Does not consider transformations, panning etc.
         but only position, size and rotation of outputs

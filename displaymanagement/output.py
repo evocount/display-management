@@ -47,7 +47,6 @@ class Output(Entity):
     def __init__(
         self,
         id,
-        name,
         display,
         screen,
         output,
@@ -65,8 +64,6 @@ class Output(Entity):
         ----------
         id : int
             The ID of the output.
-        name : str
-            The name of the output.
         display : XDisplay
             The underlying X display object which contains this output.
         screen : XScreen
@@ -89,7 +86,6 @@ class Output(Entity):
             The time at which the screen which contains this object was last changed.
         """
         super().__init__(id)
-        self.__name = name
         self.__display = display
         self.__screen = screen
         self.__output = output
@@ -319,6 +315,8 @@ class Output(Entity):
                 "Attempting to place this output relative to a disconnected output"
             )
 
+        # TODO does not consider rotation
+
         other_output_crtc = output.CRTC_Info
         this_crtc = self.CRTC_Info
         new_x = None
@@ -397,7 +395,7 @@ class Output(Entity):
 
         return OutputDescriptor(
             id=self._id,
-            name=self.__name,
+            name=self.__output._data["name"],
             current_mode_id=current_mode_id,
             available_mode_ids=list(self.__modes.keys()),
             is_connected=is_connected,
@@ -405,6 +403,8 @@ class Output(Entity):
             y=crtc_info.y if crtc_info is not None else None,
             width=crtc_info.width if crtc_info is not None else None,
             height=crtc_info.height if crtc_info is not None else None,
+            width_mm=self.__output._data["mm_width"],
+            height_mm=self.__output._data["mm_height"],
             rotation=self.__rotation,
             # edid=self.get_edid() if is_connected and self.has_edid() else None,
         )
@@ -436,7 +436,6 @@ class Output(Entity):
         """
         output = display.xrandr_get_output_info(output_id, config_timestamp)
         output_data = output._data
-        name = output_data["name"]
         is_connected = output_data["connection"] == randr.Connected
         output_modes = get_modes_from_ids(output_data["modes"], screen_modes)
         target_crtc_id = output_data["crtc"]
@@ -452,7 +451,6 @@ class Output(Entity):
         active_mode_id = target_crtc_info._data["mode"] if target_crtc_info else None
         return Output(
             output_id,
-            name,
             display,
             screen,
             output,
