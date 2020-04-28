@@ -1,3 +1,4 @@
+import enum
 from Xlib.error import XError
 from Xlib.ext import randr
 from Xlib.ext.randr import PROPERTY_RANDR_EDID
@@ -9,7 +10,6 @@ from .model_descriptors.output_descriptor import OutputDescriptor
 from .model_descriptors.crtc_info import CRTCInfo
 from .resources import get_pnp_info
 from .exceptions import ResourceError, InvalidStateError
-import enum
 
 
 class Output(Entity):
@@ -340,15 +340,10 @@ class Output(Entity):
 
         mode_info = self.__display.xrandr_get_crtc_info(
             self.__target_crtc_id, self.__config_timestamp
-        )
-        self.__config_timestamp = mode_info._data["timestamp"]
-        return CRTCInfo(
-            x=mode_info._data["x"],
-            y=mode_info._data["y"],
-            width=mode_info._data["width"],
-            height=mode_info._data["height"],
-            mode_id=mode_info._data["mode"],
-        )
+        )._data
+        self.__config_timestamp = mode_info["timestamp"]
+
+        return CRTCInfo(mode_id=mode_info["mode"], **mode_info)
 
     @property
     def Connected(self):

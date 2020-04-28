@@ -10,6 +10,7 @@ from .utils import (
 )
 from .entity import Entity
 from .model_descriptors.screen_descriptor import ScreenDescriptor, ScreenSizeRange
+from .model_descriptors.crtc_info import CRTCInfo
 import random
 
 
@@ -26,6 +27,7 @@ class Screen(Entity):
     create_mode(self, name, width, height, refresh_rate, interlaced)
     get_info()
     get_size_range()
+    get_crtc_info()
 
     Static Methods
     --------------
@@ -38,7 +40,15 @@ class Screen(Entity):
     """
 
     def __init__(
-        self, id, screen, modes, outputs, crtc_ids, screen_size_id, config_timestamp,
+        self,
+        id,
+        screen,
+        display,
+        modes,
+        outputs,
+        crtc_ids,
+        screen_size_id,
+        config_timestamp,
     ):
         """
         Parameters
@@ -46,7 +56,9 @@ class Screen(Entity):
         id : int
             The ID of the screen.
         screen : XScreen
-            The undelying x screen object.
+            The underlying x screen object.
+        display : XDisplay
+            The underlying X display object which contains this screen.
         modes : dict
             A dictionary of modes supported by this screen indexed by their IDs.
         outputs : dict
@@ -60,6 +72,7 @@ class Screen(Entity):
         """
         super().__init__(id)
         self.__screen = screen
+        self.__display = display
         self.__modes = modes
         self.__outputs = outputs
         self.__crtc_ids = crtc_ids
@@ -163,6 +176,16 @@ class Screen(Entity):
         """
         return self.__crtc_ids
 
+    def get_crtc_info(self, crtc_id: int) -> CRTCInfo:
+        """
+        Returns crtc info for given id.
+        """
+        mode_info = self.__display.xrandr_get_crtc_info(
+            crtc_id, self.__config_timestamp
+        )._data
+
+        return CRTCInfo(mode_id=mode_info["mode"], **mode_info)
+
     def get_info(self):
         """
         Returns a dictionary containing all relevant information about this screen's resources.
@@ -221,6 +244,7 @@ class Screen(Entity):
         return Screen(
             screen_id,
             screen,
+            display,
             modes,
             outputs,
             crtc_ids,
