@@ -155,6 +155,7 @@ This is a brief overview of them.
    - _`set_mode(mode_id,crtc_id)`:_ Sets the mode of the output to the one referenced by the mode_id
    - _`set_position(x,y)`:_ Sets the position of the output.
    - _`set_rotation(rotation)`:_ Sets the rotation of the output.
+   - _`set_config(crtc_id, mode_id, x, y, rotation)`:_ Sets crtc config of the output.
    - _`get_info()`:_ Returns all relevant information about this output's resources.
    - _`disable()`:_ Disables the output.
    - _`re_enable()`:_ If this output was connected before, connects to the last crtc_id it was connected to with the mode that it was connected with.

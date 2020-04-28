@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 from Xlib.error import XError
 from Xlib.ext import randr
 from Xlib.ext.randr import PROPERTY_RANDR_EDID
@@ -23,6 +24,7 @@ class Output(Entity):
     set_mode(mode_id, crtc_id)
     set_position(x,y)
     set_rotation(rotation)
+    set_config(crtc_id, mode_id, x, y, rotation)
     disable()
     re_enable()
     get_edid()
@@ -93,6 +95,7 @@ class Output(Entity):
         self.__output = output
         self.__is_connected = is_connected
         self.__modes = modes
+        self.__last_mode_id = active_mode_id
         self.__active_mode_id = active_mode_id
         self.__target_crtc_id = target_crtc_id
         self.__x = x
@@ -110,15 +113,15 @@ class Output(Entity):
         """
         return [format_mode(mode_id, mode) for mode_id, mode in self.__modes.items()]
 
-    def set_mode(self, mode_id, crtc_id=None):
+    def set_mode(self, mode_id: int, crtc_id: Optional[int] = None):
         """
         Sets the mode of the output to the one referenced by the mode_id
 
         Parameters
         ----------
-        mode_id : int
+        mode_id
             The ID of the mode to set
-        crtc_id : int, optional
+        crtc_id
             The crtc ID to connect to (default is None). If this output was previously not connected,
             this has to be specified
 
@@ -127,10 +130,89 @@ class Output(Entity):
         ResourceError
             If the mode_id provided is not in the list of supported mode ids for this output.
         """
+        return self.set_config(mode_id=mode_id, crtc_id=crtc_id)
+
+    def set_position(self, x: Optional[int] = None, y: Optional[int] = None):
+        """
+        Sets the position of the output.
+
+        Parameters
+        ----------
+        x
+            The x coordinate (default is current x coord)
+        y
+            The y coordinate (default is current y coord)
+        """
+        return self.set_config(x=x, y=y)
+
+    def set_rotation(self, rotation: Optional[Rotation] = Rotation.NO_ROTATION):
+        """
+        Sets the rotation of the output.
+
+        Parameters
+        ----------
+        rotation
+            The rotation mode (default is no rotation)
+        """
+        return self.set_config(rotation=rotation)
+
+    def disable(self):
+        """
+        Disables output if connected
+        """
+        return self.set_config(mode_id=0)
+
+    def re_enable(self):
+        """
+        If this output was connected before, connects to the last crtc_id it was
+        connected to with the mode that it was connected with.
+        """
+        if self.__target_crtc_id is not None and self.__last_mode_id:
+            self.set_mode(self.__last_mode_id, self.__target_crtc_id)
+
+    def set_config(
+        self,
+        crtc_id: Optional[int] = None,
+        mode_id: Optional[int] = None,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        rotation: Optional[Rotation] = None,
+    ):
+        """
+        Sets crtc config.
+
+        Parameters
+        ----------
+        mode_id
+            The ID of the mode to set
+        crtc_id
+            The crtc ID to connect to (default is None); If this output was previously not connected,
+            this has to be specified
+        x
+            The x coordinate (default is current x coord)
+        y
+            The y coordinate (default is current y coord)
+        rotation
+            The rotation mode
+
+        Throws
+        ------
+        ResourceError
+            If the mode_id provided is not in the list of supported mode ids for this output.
+        """
+
         if crtc_id is None:
             crtc_id = self.__target_crtc_id
+        if mode_id is None:
+            mode_id = self.__active_mode_id
+        if x is None:
+            x = self.__x
+        if y is None:
+            y = self.__y
+        if rotation is None:
+            rotation = Rotation(self.__rotation)
 
-        if mode_id not in self.__modes:
+        if mode_id not in self.__modes and mode_id != 0:
             raise ResourceError(
                 "Mode ID is not in the list of supported modes for this output, use add_mode to add it first."
             )
@@ -138,89 +220,20 @@ class Output(Entity):
         result = self.__display.xrandr_set_crtc_config(
             crtc_id,
             self.__config_timestamp,
-            self.__x or 0,  # __x will be None when mode is initially set
-            self.__y or 0,  # __y will be None when mode is initially set
-            mode_id,
-            self.__rotation or Rotation.NO_ROTATION,
-            [self._id],
-        )
-        self.__config_timestamp = result._data["new_timestamp"]
-        self.__active_mode_id = mode_id
-        self.__target_crtc_id = crtc_id
-        self.__is_connected = True
-
-    def set_position(self, x=None, y=None):
-        """
-        Sets the position of the output.
-
-        Parameters
-        ----------
-        x : int, optional
-            The x coordinate (default is current x coord).
-        y : int, optional
-            The y coordinate (default is current y coord).
-        """
-        if x is None:
-            x = self.__x
-        if y is None:
-            y = self.__y
-        result = self.__display.xrandr_set_crtc_config(
-            self.__target_crtc_id,
-            self.__config_timestamp,
             x,
             y,
-            self.__active_mode_id,
-            self.__rotation,
-            [self._id],
+            mode_id,
+            rotation.value,
+            [self._id] if mode_id else [],
         )
         self.__config_timestamp = result._data["new_timestamp"]
+        self.__target_crtc_id = crtc_id
+        self.__last_mode_id = self.__active_mode_id
+        self.__active_mode_id = mode_id
         self.__x = x
         self.__y = y
-
-    def set_rotation(self, rotation=Rotation.NO_ROTATION):
-        """
-        Sets the rotation of the output.
-
-        Parameters
-        ----------
-        rotation : Rotation, optional
-            The rotation mode (default is no rotation)
-        """
-        result = self.__display.xrandr_set_crtc_config(
-            self.__target_crtc_id,
-            self.__config_timestamp,
-            self.__x,
-            self.__y,
-            self.__active_mode_id,
-            rotation.value,
-            [self._id],
-        )
-        self.__config_timestamp = result._data["new_timestamp"]
         self.__rotation = rotation.value
-
-    def disable(self):
-        """
-        Disables output if connected
-        """
-        if self.__is_connected:
-            result = self.__display.xrandr_set_crtc_config(
-                self.__target_crtc_id,
-                self.__config_timestamp,
-                self.__x,
-                self.__y,
-                0,
-                self.__rotation,
-                [],
-            )
-            self.__config_timestamp = result._data["new_timestamp"]
-
-    def re_enable(self):
-        """
-        If this output was connected before, connects to the last crtc_id it was
-        connected to with the mode that it was connected with.
-        """
-        if self.__target_crtc_id is not None:
-            self.set_mode(self.__active_mode_id, self.__target_crtc_id)
+        self.__is_connected = True
 
     def get_edid(self):
         """
@@ -300,7 +313,7 @@ class Output(Entity):
             If either this output or the one placed relative to are disconnected.
         """
         if not self.__is_connected:
-            raise InvalidStateError("This output is not connected")
+            raise InvalidStateError("Output is not connected to any monitor")
         if not output.__is_connected:
             raise InvalidStateError(
                 "Attempting to place this output relative to a disconnected output"
