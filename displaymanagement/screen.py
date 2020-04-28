@@ -1,3 +1,4 @@
+from typing import Optional
 from Xlib import X
 from Xlib.ext import randr
 from .output import Output
@@ -10,6 +11,7 @@ from .utils import (
 )
 from .entity import Entity
 from .model_descriptors.screen_descriptor import ScreenDescriptor, ScreenSizeRange
+from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.crtc_info import CRTCInfo
 import random
 
@@ -47,7 +49,10 @@ class Screen(Entity):
         modes,
         outputs,
         crtc_ids,
-        screen_size_id,
+        width,
+        height,
+        width_mm,
+        height_mm,
         config_timestamp,
     ):
         """
@@ -65,8 +70,14 @@ class Screen(Entity):
             A dictionary of outputs connected for this screen indexed by their IDs.
         crtc_ids : list
             A list of crtc IDs.
-        screen_size_ids : int
-            The ID representing this screen size.
+        width
+            width of screen in pixels
+        height
+            height of screen in pixels
+        width_mm
+            width of screen in mm
+        height_mm
+            height of screen in mm
         config_timestamp : int
             A timestamp indicating when the last change on this screen occured.
         """
@@ -76,7 +87,10 @@ class Screen(Entity):
         self.__modes = modes
         self.__outputs = outputs
         self.__crtc_ids = crtc_ids
-        self.__screen_size_id = screen_size_id
+        self.__width = width
+        self.__height = height
+        self.__width_mm = width_mm
+        self.__height_mm = height_mm
         self.__config_timestamp = config_timestamp
 
     def get_sizes(self):
@@ -99,24 +113,43 @@ class Screen(Entity):
             max_height=range._data["max_height"],
         )
 
-    # BUG
-    def set_size(self, size_id):
+    def set_size(
+        self,
+        width: int,
+        height: int,
+        dpi: Optional[int] = None,
+        width_mm: Optional[int] = None,
+        height_mm: Optional[int] = None,
+    ):
         """
-        *BROKEN*
-        Sets the size of the screen according to a size id from the list of possible sizes.
+        Sets the size of the screen.
 
         Parameters
         ----------
-        size_id : int
-            The size id of the size to set.
+        width
+            The width in pixels to set
+        height
+            The height in pixels to set
+        dpi
+            DPI to use for screen (??)
+        width_mm
+            The width in mm to set when dpi is not given
+        height_mm
+            The height in mm to set when dpi is not given
         """
-        # BUG: set_screen_config is possibly broken, or the params are incorrect
-        # TODO: check for non existent id
-        result = self.__screen.root.xrandr_set_screen_config(
-            size_id, randr.Rotate_0, self.__config_timestamp, 0
-        )
-        self.__config_timestamp = result._data["config_timestamp"]
-        self.__screen_size_id = size_id
+        if dpi is not None:
+            width_mm = int((25.4 * width) / dpi)
+            height_mm = int((25.4 * height) / dpi)
+        else:
+            width_mm = width_mm or self.__width_mm
+            height_mm = height_mm or self.__height_mm
+
+        self.__screen.root.xrandr_set_screen_size(width, height, width_mm, height_mm)
+
+        self.__width = width
+        self.__height = height
+        self.__width_mm = width_mm
+        self.__height_mm = height_mm
 
     # BUG
     def set_refresh_rate(self, rate=0):
@@ -196,11 +229,9 @@ class Screen(Entity):
         ScreenDescriptor
             The descriptor of the screen
         """
-        sizes = self.get_sizes()
-        screen_size = sizes[self.__screen_size_id] if len(sizes) > 0 else None
         return ScreenDescriptor(
             id=self._id,
-            size=screen_size if screen_size is not None else None,
+            size=ScreenSize(width=self.__width, height=self.__height),
             outputs=[output.get_info() for output_id, output in self.__outputs.items()],
             modes=[
                 format_mode(mode_id, mode) for mode_id, mode in self.__modes.items()
@@ -239,8 +270,6 @@ class Screen(Entity):
                 display, screen, output_id, modes, config_timestamp
             )
 
-        screen_info = screen.root.xrandr_get_screen_info()
-        screen_size_id = screen_info._data["size_id"]
         return Screen(
             screen_id,
             screen,
@@ -248,6 +277,9 @@ class Screen(Entity):
             modes,
             outputs,
             crtc_ids,
-            screen_size_id,
+            screen.width_in_pixels,
+            screen.height_in_pixels,
+            screen.width_in_mms,
+            screen.height_in_mms,
             config_timestamp,
         )
