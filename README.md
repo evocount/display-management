@@ -134,6 +134,7 @@ This is a brief overview of them.
    - _`load_screen()`:_ Loads the screen resources identified by the screen_identifier for this display.
    - _`load_all_screens()`:_ Loads all screens associated with this display.
    - _`get_info()`:_ Returns all relevant information about this display's loaded resources.
+   - _`sync()`:_ Flushes X queue and waits until the server has processed all the queued requests.
    - _`Screens()`:_ Returns all loaded screens associated with this display.
 
 2. `Screen`

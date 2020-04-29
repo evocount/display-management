@@ -19,6 +19,7 @@ class Display(Entity):
     load_screen(screen_identifier, reload)
     load_all_screens()
     get_info()
+    sync()
 
     Properties
     ----------
@@ -30,7 +31,7 @@ class Display(Entity):
         Parameters
         ----------
         id : str, optional
-            The string id for this display to load (default is ":0").   
+            The string id for this display to load (default is ":0").
             Note: Corresponds to the DISPLAY environment variable.
         """
         super().__init__(id)
@@ -54,7 +55,7 @@ class Display(Entity):
     def load_screen(self, screen_identifier=None, reload=False):
         """
         Loads the screen resources identified by the screen_identifier for this display.
-        
+
         Parameters
         ----------
         screen_identifier : int, optional
@@ -97,7 +98,7 @@ class Display(Entity):
     def Screens(self):
         """
         Returns a dcitionary of all loaded screens associated with this display.
-        
+
         Returns
         -------
         dict
@@ -108,7 +109,7 @@ class Display(Entity):
     def get_info(self):
         """
         Returns a dictionary containing all relevant information about this display's loaded resources.
-        
+
         Returns
         -------
         DisplayDescriptor
@@ -119,3 +120,10 @@ class Display(Entity):
             screen_count=self.get_screen_count(),
             screens=[screen.get_info() for screen in self.__screens.values()],
         )
+
+    def sync(self):
+        """
+        Flushes X queue and waits until the server has processed all
+        the queued requests.
+        """
+        return self.__display.sync()
