@@ -9,6 +9,7 @@ from .rotation import Rotation
 from .entity import Entity
 from .model_descriptors.output_descriptor import OutputDescriptor
 from .model_descriptors.crtc_info import CRTCInfo
+from .model_descriptors.crtc_config import CRTCConfig
 from .resources import get_pnp_info
 from .exceptions import ResourceError, InvalidStateError
 
@@ -32,12 +33,14 @@ class Output(Entity):
     get_info()
     has_edid()
     relative_place(output, orientation)
+    complete_crtc_config(config)
 
     Properties
     ----------
     Connected()
     CRTC_ID()
     CRTC_Info()
+    CRTC_Config()
 
     Static Methods
     --------------
@@ -92,11 +95,14 @@ class Output(Entity):
         self.__is_connected = is_connected
         self.__modes = modes
         self.__last_mode_id = active_mode_id
-        self.__active_mode_id = active_mode_id
-        self.__target_crtc_id = target_crtc_id
-        self.__x = x
-        self.__y = y
-        self.__rotation = rotation
+        self.__crtc_config = CRTCConfig(
+            crtc=target_crtc_id,
+            x=x,
+            y=y,
+            mode=active_mode_id,
+            rotation=Rotation(rotation or Rotation.NO_ROTATION),
+        )
+
         self.__config_timestamp = config_timestamp
 
     def get_available_modes_info(self):
@@ -126,7 +132,7 @@ class Output(Entity):
         ResourceError
             If the mode_id provided is not in the list of supported mode ids for this output.
         """
-        return self.set_config(mode_id=mode_id, crtc_id=crtc_id)
+        return self.set_config(CRTCConfig(mode=mode_id, crtc=crtc_id))
 
     def set_position(self, x: Optional[int] = None, y: Optional[int] = None):
         """
@@ -139,7 +145,7 @@ class Output(Entity):
         y
             The y coordinate (default is current y coord)
         """
-        return self.set_config(x=x, y=y)
+        return self.set_config(CRTCConfig(x=x, y=y))
 
     def set_rotation(self, rotation: Optional[Rotation] = Rotation.NO_ROTATION):
         """
@@ -150,46 +156,28 @@ class Output(Entity):
         rotation
             The rotation mode (default is no rotation)
         """
-        return self.set_config(rotation=rotation)
+        return self.set_config(CRTCConfig(rotation=rotation))
 
     def disable(self):
         """
         Disables output if connected
         """
-        return self.set_config(mode_id=0)
+        return self.set_config(CRTCConfig(mode=0))
 
     def re_enable(self):
         """
         If this output was connected before, connects to the last crtc_id it was
         connected to with the mode that it was connected with.
         """
-        if self.__target_crtc_id is not None and self.__last_mode_id:
-            self.set_mode(self.__last_mode_id, self.__target_crtc_id)
+        if self.__crtc_config.crtc is not None and self.__last_mode_id:
+            self.set_mode(self.__last_mode_id, self.__crtc_config.crtc)
 
-    def set_config(
-        self,
-        crtc_id: Optional[int] = None,
-        mode_id: Optional[int] = None,
-        x: Optional[int] = None,
-        y: Optional[int] = None,
-        rotation: Optional[Rotation] = None,
-    ):
+    def set_config(self, config: CRTCConfig):
         """
         Sets crtc config.
 
-        Parameters
-        ----------
-        mode_id
-            The ID of the mode to set
-        crtc_id
-            The crtc ID to connect to (default is None); If this output was previously not connected,
-            this has to be specified
-        x
-            The x coordinate (default is current x coord)
-        y
-            The y coordinate (default is current y coord)
-        rotation
-            The rotation mode
+        WARNING Does not adjust screen size! Use Screen.set_crtc_config instead
+        to profit from automatic adjustment of screen size.
 
         Throws
         ------
@@ -197,39 +185,35 @@ class Output(Entity):
             If the mode_id provided is not in the list of supported mode ids for this output.
         """
 
-        if crtc_id is None:
-            crtc_id = self.__target_crtc_id
-        if mode_id is None:
-            mode_id = self.__active_mode_id
-        if x is None:
-            x = self.__x
-        if y is None:
-            y = self.__y
-        if rotation is None:
-            rotation = Rotation(self.__rotation)
+        config = self.complete_crtc_config(config)
 
-        if mode_id not in self.__modes and mode_id != 0:
+        if config.mode not in self.__modes and config.mode != 0:
             raise ResourceError(
                 "Mode ID is not in the list of supported modes for this output, use add_mode to add it first."
             )
 
         result = self.__display.xrandr_set_crtc_config(
-            crtc_id,
-            self.__config_timestamp,
-            x,
-            y,
-            mode_id,
-            rotation.value,
-            [self._id] if mode_id else [],
+            config_timestamp=self.__config_timestamp,
+            outputs=[self._id] if config.mode else [],
+            **config.dict()
         )
         self.__config_timestamp = result._data["new_timestamp"]
-        self.__target_crtc_id = crtc_id
-        self.__last_mode_id = self.__active_mode_id
-        self.__active_mode_id = mode_id
-        self.__x = x
-        self.__y = y
-        self.__rotation = rotation.value
+        self.__last_mode_id = config.mode
+        self.__crtc_config = config
         self.__is_connected = True
+
+    def complete_crtc_config(self, config: CRTCConfig) -> CRTCConfig:
+        """
+        Returns crtc config where missing bits are filled with current config of this output.
+        """
+        fill = self.__crtc_config
+        return CRTCConfig(
+            crtc=fill.crtc if config.crtc is None else config.crtc,
+            x=fill.x if config.x is None else config.x,
+            y=fill.y if config.y is None else config.y,
+            mode=fill.mode if config.mode is None else config.mode,
+            rotation=fill.rotation if config.rotation is None else config.rotation,
+        )
 
     def get_edid(self):
         """
@@ -338,28 +322,31 @@ class Output(Entity):
         self.set_position(new_x, new_y)
 
     @property
-    def CRTC_Info(self):
+    def CRTC_Info(self) -> CRTCInfo:
         """
-        Returns the crtc information for this output or None if it is not connected.
-
-        Returns
-        ModeInfo
-            The mode info.
+        CRTC information for this output or None if it is not connected.
         """
-        if not self.__is_connected or not self.__target_crtc_id:
+        if not self.__is_connected or not self.__crtc_config.crtc:
             return None
 
         mode_info = self.__display.xrandr_get_crtc_info(
-            self.__target_crtc_id, self.__config_timestamp
+            self.__crtc_config.crtc, self.__config_timestamp
         )._data
         self.__config_timestamp = mode_info["timestamp"]
 
         return CRTCInfo(mode_id=mode_info["mode"], **mode_info)
 
     @property
+    def CRTC_Config(self) -> CRTCConfig:
+        """
+        Current CRTC config of this output.
+        """
+        return self.__crtc_config.copy()
+
+    @property
     def Connected(self):
         """
-        Returns true if the output is connected.
+        Whether this output is connected.
 
         Returns
         bool
@@ -370,13 +357,13 @@ class Output(Entity):
     @property
     def CRTC_ID(self):
         """
-        Returns the CRTC ID this output is connectd to or None if it is not connected
+        CRTC ID this output is connected to or None if it is not connected
 
         Returns
         int
             The CRTC ID
         """
-        return self.__target_crtc_id
+        return self.__crtc_config.crtc
 
     def get_info(self):
         """
@@ -387,16 +374,13 @@ class Output(Entity):
         OutputDescriptor
             The descriptor of the output
         """
-        current_mode_id = (
-            self.__active_mode_id if self.__active_mode_id is not None else None
-        )
         is_connected = self.__is_connected
         crtc_info = self.CRTC_Info
 
         return OutputDescriptor(
             id=self._id,
             name=self.__output._data["name"],
-            current_mode_id=current_mode_id,
+            current_mode_id=self.__crtc_config.mode,
             available_mode_ids=list(self.__modes.keys()),
             is_connected=is_connected,
             x=crtc_info.x if crtc_info is not None else None,
@@ -405,7 +389,7 @@ class Output(Entity):
             height=crtc_info.height if crtc_info is not None else None,
             width_mm=self.__output._data["mm_width"],
             height_mm=self.__output._data["mm_height"],
-            rotation=self.__rotation,
+            rotation=self.__crtc_config.rotation,
             # edid=self.get_edid() if is_connected and self.has_edid() else None,
         )
 

@@ -1,11 +1,13 @@
+import re
+from collections import namedtuple
+from functools import reduce
 from string import Template
+from subprocess import check_output
 from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.mode_info import ModeInfo
 from .model_descriptors.edid_descriptor import EDIDDescriptor
-from subprocess import check_output
-from functools import reduce
 from .exceptions import MalformedInputError
-import re
+from .rotation import Rotation
 
 MODE_FLAG_CODES = {
     "+hsync": 0x00000001,
@@ -18,6 +20,8 @@ MODE_FLAG_CODES = {
     "+csync": 0x00000080,
     "-csync": 0x00000100,
 }
+
+Extent = namedtuple("Extent", ["x", "y"])
 
 
 def get_mode_dict_from_list(modes_resouces):
@@ -34,7 +38,7 @@ def get_mode_dict_from_list(modes_resouces):
 
 def get_modes_from_ids(mode_ids, modes):
     """
-    Takes in a list of mode ids and a list of modes and returns a dictionary 
+    Takes in a list of mode ids and a list of modes and returns a dictionary
     of the provided mode ids with their correpsonding mode objects.
 
     Parameters
@@ -223,3 +227,17 @@ def format_edid(edid_data):
         width=width,
         height=height,
     )
+
+
+def output_extent(
+    x: int, y: int, width: int, height: int, rotation: Rotation
+) -> Extent:
+    """
+    Size (max x, y) requirements according to params.
+    """
+    sideways = Rotation(rotation) in [Rotation.ROTATE_90, Rotation.ROTATE_270]
+
+    output_width = height if sideways else width
+    output_height = width if sideways else height
+
+    return Extent(x + output_width, y + output_height)

@@ -142,6 +142,7 @@ This is a brief overview of them.
    - _`get_sizes()`:_ Returns all possible sizes for this screen.
    - _`set_size(width, height, dpi, width_mm, height_mm)`:_ Sets the size of the screen.
    - _`adjust_size()`:_ Adjusts size of screen to fit outputs.
+   - _`set_crtc_config(output, config)`:_ Sets crtc config on output while also adjusting screen size.
    - _`set_refresh_rate(rate)`:_ Sets the refresh rate of the screen.
    - _`get_info()`:_ Returns information about this screen's resources.
    - _`create_mode(name,width,height,refresh_rate,interlaced)`:_ Creates a new mode for the screen to be used by its outputs.
@@ -164,9 +165,11 @@ This is a brief overview of them.
    - _`add_mode(mode_id)`:_ Adds a mode to the output.
    - _`has_edid()`:_ Checks if the output's connected monitor exposes an EDID property.
    - _`relative_place(self,output,orientation)`:_ Places the output in a location relative to another output.
-   - _`Connected()`:_ Returns true if the output is connected.
-   - _`CRTC_ID()`:_ Returns the CRTC ID this output is connectd to.
-   - _`CRTC_Info()`:_ Returns the CRTC info this output is connected to.
+   - _`complete_crtc_config(config)`:_ Returns crtc config where missing bits are filled with current config of this output.
+   - _`Connected`:_ Whether the output is connected.
+   - _`CRTC_ID`:_ CRTC ID this output is connectd to.
+   - _`CRTC_Info`:_ CRTC info this output is connected to.
+   - _`CRTC_Config`:_ Current CRTC config of this output.
 
 - For an in-depth technical documentation check the docstrings
 - In addition to the main Classes, the library exposes an Enum Class `Rotation` which contains predefined orientation values

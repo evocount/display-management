@@ -8,12 +8,15 @@ from .utils import (
     format_mode,
     format_size,
     get_mode,
+    output_extent,
 )
 from .entity import Entity
+from .exceptions import ResourceError
 from .rotation import Rotation
 from .model_descriptors.screen_descriptor import ScreenDescriptor, ScreenSizeRange
 from .model_descriptors.screen_size import ScreenSize
 from .model_descriptors.crtc_info import CRTCInfo
+from .model_descriptors.crtc_config import CRTCConfig
 import random
 
 
@@ -133,18 +136,20 @@ class Screen(Entity):
         height
             The height in pixels to set
         dpi
-            DPI to use for screen (??)
+            DPI to use for screen; when not given current DPI will be used
         width_mm
-            The width in mm to set when dpi is not given
+            The width in mm to set; will be calculated using DPI when not given
         height_mm
-            The height in mm to set when dpi is not given
+            The height in mm to set; will be calculated using DPI when not given
         """
-        if dpi is not None:
+        if not dpi:
+            dpi = (25.4 * self.__height) / self.__height_mm
+
+        if width_mm is None:
             width_mm = int((25.4 * width) / dpi)
+
+        if height_mm is None:
             height_mm = int((25.4 * height) / dpi)
-        else:
-            width_mm = width_mm or self.__width_mm
-            height_mm = height_mm or self.__height_mm
 
         # TODO raise exception instead of adjusting silently?
         extrema = self.get_size_range()
@@ -173,13 +178,16 @@ class Screen(Entity):
             if not crtc_info:
                 continue
 
-            sideways = crtc_info.rotation in [Rotation.ROTATE_90, Rotation.ROTATE_270]
+            extent = output_extent(
+                crtc_info.x,
+                crtc_info.y,
+                crtc_info.width,
+                crtc_info.height,
+                crtc_info.rotation,
+            )
 
-            output_width = crtc_info.height if sideways else crtc_info.width
-            output_height = crtc_info.width if sideways else crtc_info.height
-
-            width = max(width, crtc_info.x + output_width)
-            height = max(height, crtc_info.y + output_height)
+            width = max(width, extent.x)
+            height = max(height, extent.y)
 
         dpi = (25.4 * self.__height) / self.__height_mm
 
@@ -228,6 +236,47 @@ class Screen(Entity):
         mode = get_mode(width, height, refresh_rate, name, 0, interlaced)
         mode_id = self.__screen.root.xrandr_create_mode(mode, name)
         return mode_id._data["mode"]
+
+    def set_crtc_config(self, output: Output, config: CRTCConfig):
+        """
+        Sets crtc config on output while also adjusting screen size.
+        """
+        if output not in self.Outputs.values():
+            raise ResourceError("Output not assigned to this screen.")
+
+        # self.__display.grab_server()
+
+        try:
+            config = output.complete_crtc_config(config)
+
+            if not config.mode:
+                output.disable()
+                self.__display.sync()
+                self.adjust_size()
+            else:
+                if config.mode not in self.__modes:
+                    raise ResourceError(
+                        "Mode ID is not in the list of supported modes for this screen, use create_mode to create it first."
+                    )
+
+                mode = self.__modes[config.mode]
+                extent = output_extent(
+                    config.x, config.y, mode["width"], mode["height"], config.rotation
+                )
+
+                if extent.x > self.__width or extent.y > self.__height:
+                    if output.CRTC_Config.mode:
+                        # only disable if it was not already disabled
+                        output.disable()
+                        self.__display.sync()
+
+                self.set_size(max(self.__width, extent.x), max(self.__height, extent.y))
+                self.__display.sync()
+
+                output.set_config(config)
+        finally:
+            pass
+            # self.__display.ungrab_server()
 
     @property
     def Outputs(self):
