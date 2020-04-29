@@ -251,7 +251,6 @@ class Screen(Entity):
 
             if not config.mode:
                 output.disable()
-                self.__display.sync()
                 self.adjust_size()
             else:
                 if config.mode not in self.__modes:
@@ -268,10 +267,8 @@ class Screen(Entity):
                     if output.CRTC_Config.mode:
                         # only disable if it was not already disabled
                         output.disable()
-                        self.__display.sync()
 
                 self.set_size(max(self.__width, extent.x), max(self.__height, extent.y))
-                self.__display.sync()
 
                 output.set_config(config)
         finally:
