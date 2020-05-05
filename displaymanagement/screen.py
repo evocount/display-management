@@ -143,7 +143,10 @@ class Screen(Entity):
             The height in mm to set; will be calculated using DPI when not given
         """
         if not dpi:
-            dpi = (25.4 * self.__height) / self.__height_mm
+            if self.__height_mm:
+                dpi = (25.4 * self.__height) / self.__height_mm
+            else:
+                dpi = 96.0
 
         if width_mm is None:
             width_mm = int((25.4 * width) / dpi)
