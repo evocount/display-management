@@ -162,7 +162,7 @@ class Output(Entity):
         """
         Disables output if connected
         """
-        if self.__crtc_config.crtc is not None:
+        if self.__crtc_config.crtc is not None and self.__crtc_config.mode:
             return self.set_config(CRTCConfig(mode=0))
 
     def re_enable(self):
