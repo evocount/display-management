@@ -1,4 +1,4 @@
-from pyedid.helpers.registry import Registry
+from pyedid import Registry
 
 
 PNP_REGISTRY = None
