@@ -3,7 +3,7 @@ from typing import Optional
 from Xlib.error import XError
 from Xlib.ext import randr
 from Xlib.ext.randr import PROPERTY_RANDR_EDID
-from pyedid.edid import Edid
+from pyedid import Edid
 from .utils import get_modes_from_ids, format_mode, format_edid
 from .rotation import Rotation
 from .entity import Entity

@@ -7,12 +7,9 @@ verify_ssl = true
 black = "*"
 
 [packages]
-pydantic = "*"
-python-xlib = "*"
-pyedid = "*"
-
-[requires]
-python_version = "3.6"
+pydantic = "~1.8.2"
+python-xlib = "~0.3.0"
+pyedid = "~1.0.1"
 
 [pipenv]
 allow_prereleases = true
